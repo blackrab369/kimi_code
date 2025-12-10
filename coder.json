@@ -1,0 +1,2245 @@
+{
+    "project": {
+        "name": "Serverless Observability Platform",
+        "description": "A scalable platform for monitoring serverless workloads.",
+        "tech_stack": [
+            "C#",
+            ".NET 8",
+            "React",
+            "Supabase",
+            "Vercel"
+        ],
+        "deployment_targets": [
+            "Vercel",
+            "Supabase",
+            "Docker",
+            "Kubernetes"
+        ],
+        "ci_cd": [
+            "GitHub Actions",
+            "Azure DevOps"
+        ],
+        "security": [
+            "OAuth2",
+            "JWT",
+            "SOC2 compliance",
+            "GDPR"
+        ],
+        "scaffolding": [
+            "Visual Studio solution",
+            "API project",
+            "Frontend project",
+            "Infrastructure project"
+        ],
+        "documentation": [
+            "README.md",
+            "API docs",
+            "Architecture diagrams",
+            "Onboarding guide"
+        ]
+    },
+    "agents": [
+        {
+            "role": "Product Manager",
+            "department": "Product",
+            "goal": "Define product vision and roadmap.",
+            "key_tasks": [
+                "Gather customer requirements",
+                "Prioritize features",
+                "Align roadmap with business goals",
+                "Coordinate cross-team execution"
+            ],
+            "skills": [
+                "Agile",
+                "Roadmapping",
+                "Stakeholder management"
+            ],
+            "metrics": [
+                "Feature adoption rate",
+                "Roadmap delivery"
+            ],
+            "tools": [
+                "Jira",
+                "Confluence"
+            ],
+            "collaborates_with": [
+                "Engineering",
+                "UX Designer",
+                "Executive"
+            ],
+            "level": "Senior",
+            "deliverables": [
+                "Product roadmap",
+                "Feature specifications"
+            ]
+        },
+        {
+            "role": "Software Engineer",
+            "department": "Engineering",
+            "goal": "Build and maintain core application features.",
+            "key_tasks": [
+                "Write clean, scalable code",
+                "Implement APIs",
+                "Conduct code reviews",
+                "Collaborate with QA"
+            ],
+            "skills": [
+                "C#",
+                ".NET",
+                "SQL",
+                "Git"
+            ],
+            "metrics": [
+                "Code coverage",
+                "Feature delivery time"
+            ],
+            "tools": [
+                "Visual Studio",
+                "GitHub"
+            ],
+            "collaborates_with": [
+                "Product Manager",
+                "QA Engineer"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Backend services",
+                "Unit tests"
+            ]
+        },
+        {
+            "role": "UX Designer",
+            "department": "Design",
+            "goal": "Create intuitive user experiences.",
+            "key_tasks": [
+                "Design wireframes",
+                "Conduct usability testing",
+                "Maintain design system"
+            ],
+            "skills": [
+                "Figma",
+                "User research",
+                "Accessibility"
+            ],
+            "metrics": [
+                "User satisfaction score",
+                "Task completion rate"
+            ],
+            "tools": [
+                "Figma",
+                "Adobe XD"
+            ],
+            "collaborates_with": [
+                "Frontend Engineer",
+                "Product Manager"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Wireframes",
+                "Prototypes"
+            ]
+        },
+        {
+            "role": "QA Engineer",
+            "department": "Quality Assurance",
+            "goal": "Ensure product reliability and performance.",
+            "key_tasks": [
+                "Develop automated tests",
+                "Perform regression testing",
+                "Track bugs"
+            ],
+            "skills": [
+                "Selenium",
+                "Test automation",
+                "Attention to detail"
+            ],
+            "metrics": [
+                "Bug resolution time",
+                "Test coverage"
+            ],
+            "tools": [
+                "Selenium",
+                "Postman"
+            ],
+            "collaborates_with": [
+                "Software Engineer",
+                "DevOps Engineer"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Test plans",
+                "Bug reports"
+            ]
+        },
+        {
+            "role": "DevOps Engineer",
+            "department": "DevOps",
+            "goal": "Automate deployments and maintain CI/CD pipelines.",
+            "key_tasks": [
+                "Manage pipelines",
+                "Automate infrastructure",
+                "Monitor system health"
+            ],
+            "skills": [
+                "CI/CD",
+                "Docker",
+                "Kubernetes"
+            ],
+            "metrics": [
+                "Deployment frequency",
+                "System uptime"
+            ],
+            "tools": [
+                "GitHub Actions",
+                "Azure DevOps"
+            ],
+            "collaborates_with": [
+                "Software Engineer",
+                "SRE"
+            ],
+            "level": "Senior",
+            "deliverables": [
+                "CI/CD pipelines",
+                "Infrastructure scripts"
+            ]
+        },
+        {
+            "role": "Site Reliability Engineer",
+            "department": "SRE",
+            "goal": "Maintain system reliability and scalability.",
+            "key_tasks": [
+                "Monitor performance",
+                "Respond to incidents",
+                "Improve resilience"
+            ],
+            "skills": [
+                "Monitoring",
+                "Incident response",
+                "Cloud infrastructure"
+            ],
+            "metrics": [
+                "MTTR",
+                "System uptime"
+            ],
+            "tools": [
+                "Prometheus",
+                "Grafana"
+            ],
+            "collaborates_with": [
+                "DevOps Engineer",
+                "Security Analyst"
+            ],
+            "level": "Senior",
+            "deliverables": [
+                "Incident reports",
+                "Reliability improvements"
+            ]
+        },
+        {
+            "role": "Security Analyst",
+            "department": "Security",
+            "goal": "Protect systems and data from threats.",
+            "key_tasks": [
+                "Conduct vulnerability assessments",
+                "Implement patches",
+                "Monitor activity"
+            ],
+            "skills": [
+                "Penetration testing",
+                "Encryption",
+                "Compliance"
+            ],
+            "metrics": [
+                "Number of vulnerabilities closed",
+                "Audit pass rate"
+            ],
+            "tools": [
+                "Nmap",
+                "OWASP ZAP"
+            ],
+            "collaborates_with": [
+                "SRE",
+                "Compliance Officer"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Security reports",
+                "Patch documentation"
+            ]
+        },
+        {
+            "role": "Data Engineer",
+            "department": "Data Engineering",
+            "goal": "Build and maintain data pipelines.",
+            "key_tasks": [
+                "Design ETL processes",
+                "Optimize queries",
+                "Ensure data quality"
+            ],
+            "skills": [
+                "SQL",
+                "Python",
+                "ETL tools"
+            ],
+            "metrics": [
+                "Pipeline uptime",
+                "Data accuracy"
+            ],
+            "tools": [
+                "Airflow",
+                "Supabase"
+            ],
+            "collaborates_with": [
+                "Analytics Team",
+                "Software Engineer"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Data pipelines",
+                "ETL scripts"
+            ]
+        },
+        {
+            "role": "Analytics Specialist",
+            "department": "Analytics",
+            "goal": "Provide insights from data.",
+            "key_tasks": [
+                "Build dashboards",
+                "Run analyses",
+                "Support decision-making"
+            ],
+            "skills": [
+                "Data visualization",
+                "Statistics",
+                "SQL"
+            ],
+            "metrics": [
+                "Report accuracy",
+                "Insight adoption"
+            ],
+            "tools": [
+                "Tableau",
+                "Power BI"
+            ],
+            "collaborates_with": [
+                "Product Manager",
+                "Finance Analyst"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Dashboards",
+                "Analytical reports"
+            ]
+        },
+        {
+            "role": "Customer Success Manager",
+            "department": "Customer Success",
+            "goal": "Drive customer adoption and satisfaction.",
+            "key_tasks": [
+                "Onboard clients",
+                "Provide training",
+                "Track health metrics"
+            ],
+            "skills": [
+                "Communication",
+                "Training",
+                "CRM"
+            ],
+            "metrics": [
+                "Customer retention",
+                "NPS score"
+            ],
+            "tools": [
+                "Salesforce",
+                "HubSpot"
+            ],
+            "collaborates_with": [
+                "Support Team",
+                "Product Manager"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Onboarding guides",
+                "Customer health reports"
+            ]
+        },
+        {
+            "role": "Support Specialist",
+            "department": "Support",
+            "goal": "Resolve customer issues quickly.",
+            "key_tasks": [
+                "Answer tickets",
+                "Escalate bugs",
+                "Provide solutions"
+            ],
+            "skills": [
+                "Troubleshooting",
+                "Communication",
+                "Empathy"
+            ],
+            "metrics": [
+                "Ticket resolution time",
+                "Customer satisfaction"
+            ],
+            "tools": [
+                "Zendesk",
+                "Freshdesk"
+            ],
+            "collaborates_with": [
+                "Customer Success Manager",
+                "QA Engineer"
+            ],
+            "level": "Entry-level",
+            "deliverables": [
+                "Support tickets",
+                "Knowledge base articles"
+            ]
+        },
+        {
+            "role": "Finance Analyst",
+            "department": "Finance",
+            "goal": "Manage budgets and financial planning.",
+            "key_tasks": [
+                "Prepare reports",
+                "Forecast revenue",
+                "Monitor KPIs"
+            ],
+            "skills": [
+                "Accounting",
+                "Excel",
+                "Forecasting"
+            ],
+            "metrics": [
+                "Budget variance",
+                "Revenue growth"
+            ],
+            "tools": [
+                "Excel",
+                "QuickBooks"
+            ],
+            "collaborates_with": [
+                "Executive",
+                "Analytics Specialist"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Financial reports",
+                "Forecast models"
+            ]
+        },
+        {
+            "role": "HR Specialist",
+            "department": "HR",
+            "goal": "Manage employee lifecycle.",
+            "key_tasks": [
+                "Recruit talent",
+                "Handle onboarding",
+                "Manage benefits"
+            ],
+            "skills": [
+                "Recruitment",
+                "Employee relations",
+                "Compliance"
+            ],
+            "metrics": [
+                "Employee retention",
+                "Time-to-hire"
+            ],
+            "tools": [
+                "Workday",
+                "BambooHR"
+            ],
+            "collaborates_with": [
+                "Talent Acquisition",
+                "Executive"
+            ],
+            "level": "Mid-level",
+            "deliverables": [
+                "Job postings",
+                "Onboarding materials"
+            ]
+        },
+        {
+            "role": "Executive",
+            "department": "Executive",
+            "goal": "Provide strategic leadership.",
+            "key_tasks": [
+                "Define vision",
+                "Make key decisions",
+                "Oversee company performance"
+            ],
+            "skills": [
+                "Leadership",
+                "Strategy",
+                "Finance"
+            ],
+            "metrics": [
+                "Revenue growth",
+                "Market share"
+            ],
+            "tools": [
+                "Board reports",
+                "Financial dashboards"
+            ],
+            "collaborates_with": [
+                "All departments"
+            ],
+            "level": "C-level",
+            "deliverables": [
+                "Strategic plans",
+                "Annual reports"
+            ]
+        },
+        {
+            "project": {
+                "name": "Serverless Observability Platform",
+                "description": "A scalable platform for monitoring serverless workloads.",
+                "tech_stack": [
+                    "C#",
+                    ".NET 8",
+                    "React",
+                    "Supabase",
+                    "Vercel"
+                ],
+                "deployment_targets": [
+                    "Vercel",
+                    "Supabase",
+                    "Docker",
+                    "Kubernetes"
+                ],
+                "ci_cd": [
+                    "GitHub Actions",
+                    "Azure DevOps"
+                ],
+                "security": [
+                    "OAuth2",
+                    "JWT",
+                    "SOC2 compliance",
+                    "GDPR"
+                ],
+                "scaffolding": [
+                    "Visual Studio solution",
+                    "API project",
+                    "Frontend project",
+                    "Infrastructure project"
+                ],
+                "documentation": [
+                    "README.md",
+                    "API docs",
+                    "Architecture diagrams",
+                    "Onboarding guide"
+                ]
+            },
+            "agents": [
+                {
+                    "role": "Product Manager",
+                    "department": "Product",
+                    "goal": "Define product vision and roadmap.",
+                    "key_tasks": [
+                        "Gather customer requirements",
+                        "Prioritize features",
+                        "Align roadmap with business goals",
+                        "Coordinate cross-team execution"
+                    ],
+                    "skills": [
+                        "Agile",
+                        "Roadmapping",
+                        "Stakeholder management"
+                    ],
+                    "metrics": [
+                        "Feature adoption rate",
+                        "Roadmap delivery"
+                    ],
+                    "tools": [
+                        "Jira",
+                        "Confluence"
+                    ],
+                    "collaborates_with": [
+                        "Engineering",
+                        "UX Designer",
+                        "Executive"
+                    ],
+                    "level": "Senior",
+                    "deliverables": [
+                        "Product roadmap",
+                        "Feature specifications"
+                    ]
+                },
+                {
+                    "role": "Software Engineer",
+                    "department": "Engineering",
+                    "goal": "Build and maintain core application features.",
+                    "key_tasks": [
+                        "Write clean, scalable code",
+                        "Implement APIs",
+                        "Conduct code reviews",
+                        "Collaborate with QA"
+                    ],
+                    "skills": [
+                        "C#",
+                        ".NET",
+                        "SQL",
+                        "Git"
+                    ],
+                    "metrics": [
+                        "Code coverage",
+                        "Feature delivery time"
+                    ],
+                    "tools": [
+                        "Visual Studio",
+                        "GitHub"
+                    ],
+                    "collaborates_with": [
+                        "Product Manager",
+                        "QA Engineer"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Backend services",
+                        "Unit tests"
+                    ]
+                },
+                {
+                    "role": "UX Designer",
+                    "department": "Design",
+                    "goal": "Create intuitive user experiences.",
+                    "key_tasks": [
+                        "Design wireframes",
+                        "Conduct usability testing",
+                        "Maintain design system"
+                    ],
+                    "skills": [
+                        "Figma",
+                        "User research",
+                        "Accessibility"
+                    ],
+                    "metrics": [
+                        "User satisfaction score",
+                        "Task completion rate"
+                    ],
+                    "tools": [
+                        "Figma",
+                        "Adobe XD"
+                    ],
+                    "collaborates_with": [
+                        "Frontend Engineer",
+                        "Product Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Wireframes",
+                        "Prototypes"
+                    ]
+                },
+                {
+                    "role": "QA Engineer",
+                    "department": "Quality Assurance",
+                    "goal": "Ensure product reliability and performance.",
+                    "key_tasks": [
+                        "Develop automated tests",
+                        "Perform regression testing",
+                        "Track bugs"
+                    ],
+                    "skills": [
+                        "Selenium",
+                        "Test automation",
+                        "Attention to detail"
+                    ],
+                    "metrics": [
+                        "Bug resolution time",
+                        "Test coverage"
+                    ],
+                    "tools": [
+                        "Selenium",
+                        "Postman"
+                    ],
+                    "collaborates_with": [
+                        "Software Engineer",
+                        "DevOps Engineer"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Test plans",
+                        "Bug reports"
+                    ]
+                },
+                {
+                    "role": "DevOps Engineer",
+                    "department": "DevOps",
+                    "goal": "Automate deployments and maintain CI/CD pipelines.",
+                    "key_tasks": [
+                        "Manage pipelines",
+                        "Automate infrastructure",
+                        "Monitor system health"
+                    ],
+                    "skills": [
+                        "CI/CD",
+                        "Docker",
+                        "Kubernetes"
+                    ],
+                    "metrics": [
+                        "Deployment frequency",
+                        "System uptime"
+                    ],
+                    "tools": [
+                        "GitHub Actions",
+                        "Azure DevOps"
+                    ],
+                    "collaborates_with": [
+                        "Software Engineer",
+                        "SRE"
+                    ],
+                    "level": "Senior",
+                    "deliverables": [
+                        "CI/CD pipelines",
+                        "Infrastructure scripts"
+                    ]
+                },
+                {
+                    "role": "Site Reliability Engineer",
+                    "department": "SRE",
+                    "goal": "Maintain system reliability and scalability.",
+                    "key_tasks": [
+                        "Monitor performance",
+                        "Respond to incidents",
+                        "Improve resilience"
+                    ],
+                    "skills": [
+                        "Monitoring",
+                        "Incident response",
+                        "Cloud infrastructure"
+                    ],
+                    "metrics": [
+                        "MTTR",
+                        "System uptime"
+                    ],
+                    "tools": [
+                        "Prometheus",
+                        "Grafana"
+                    ],
+                    "collaborates_with": [
+                        "DevOps Engineer",
+                        "Security Analyst"
+                    ],
+                    "level": "Senior",
+                    "deliverables": [
+                        "Incident reports",
+                        "Reliability improvements"
+                    ]
+                },
+                {
+                    "role": "Security Analyst",
+                    "department": "Security",
+                    "goal": "Protect systems and data from threats.",
+                    "key_tasks": [
+                        "Conduct vulnerability assessments",
+                        "Implement patches",
+                        "Monitor activity"
+                    ],
+                    "skills": [
+                        "Penetration testing",
+                        "Encryption",
+                        "Compliance"
+                    ],
+                    "metrics": [
+                        "Number of vulnerabilities closed",
+                        "Audit pass rate"
+                    ],
+                    "tools": [
+                        "Nmap",
+                        "OWASP ZAP"
+                    ],
+                    "collaborates_with": [
+                        "SRE",
+                        "Compliance Officer"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Security reports",
+                        "Patch documentation"
+                    ]
+                },
+                {
+                    "role": "Data Engineer",
+                    "department": "Data Engineering",
+                    "goal": "Build and maintain data pipelines.",
+                    "key_tasks": [
+                        "Design ETL processes",
+                        "Optimize queries",
+                        "Ensure data quality"
+                    ],
+                    "skills": [
+                        "SQL",
+                        "Python",
+                        "ETL tools"
+                    ],
+                    "metrics": [
+                        "Pipeline uptime",
+                        "Data accuracy"
+                    ],
+                    "tools": [
+                        "Airflow",
+                        "Supabase"
+                    ],
+                    "collaborates_with": [
+                        "Analytics Team",
+                        "Software Engineer"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Data pipelines",
+                        "ETL scripts"
+                    ]
+                },
+                {
+                    "role": "Analytics Specialist",
+                    "department": "Analytics",
+                    "goal": "Provide insights from data.",
+                    "key_tasks": [
+                        "Build dashboards",
+                        "Run analyses",
+                        "Support decision-making"
+                    ],
+                    "skills": [
+                        "Data visualization",
+                        "Statistics",
+                        "SQL"
+                    ],
+                    "metrics": [
+                        "Report accuracy",
+                        "Insight adoption"
+                    ],
+                    "tools": [
+                        "Tableau",
+                        "Power BI"
+                    ],
+                    "collaborates_with": [
+                        "Product Manager",
+                        "Finance Analyst"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Dashboards",
+                        "Analytical reports"
+                    ]
+                },
+                {
+                    "role": "Customer Success Manager",
+                    "department": "Customer Success",
+                    "goal": "Drive customer adoption and satisfaction.",
+                    "key_tasks": [
+                        "Onboard clients",
+                        "Provide training",
+                        "Track health metrics"
+                    ],
+                    "skills": [
+                        "Communication",
+                        "Training",
+                        "CRM"
+                    ],
+                    "metrics": [
+                        "Customer retention",
+                        "NPS score"
+                    ],
+                    "tools": [
+                        "Salesforce",
+                        "HubSpot"
+                    ],
+                    "collaborates_with": [
+                        "Support Team",
+                        "Product Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Onboarding guides",
+                        "Customer health reports"
+                    ]
+                },
+                {
+                    "role": "Support Specialist",
+                    "department": "Support",
+                    "goal": "Resolve customer issues quickly.",
+                    "key_tasks": [
+                        "Answer tickets",
+                        "Escalate bugs",
+                        "Provide solutions"
+                    ],
+                    "skills": [
+                        "Troubleshooting",
+                        "Communication",
+                        "Empathy"
+                    ],
+                    "metrics": [
+                        "Ticket resolution time",
+                        "Customer satisfaction"
+                    ],
+                    "tools": [
+                        "Zendesk",
+                        "Freshdesk"
+                    ],
+                    "collaborates_with": [
+                        "Customer Success Manager",
+                        "QA Engineer"
+                    ],
+                    "level": "Entry-level",
+                    "deliverables": [
+                        "Support tickets",
+                        "Knowledge base articles"
+                    ]
+                },
+                {
+                    "role": "Finance Analyst",
+                    "department": "Finance",
+                    "goal": "Manage budgets and financial planning.",
+                    "key_tasks": [
+                        "Prepare reports",
+                        "Forecast revenue",
+                        "Monitor KPIs"
+                    ],
+                    "skills": [
+                        "Accounting",
+                        "Excel",
+                        "Forecasting"
+                    ],
+                    "metrics": [
+                        "Budget variance",
+                        "Revenue growth"
+                    ],
+                    "tools": [
+                        "Excel",
+                        "QuickBooks"
+                    ],
+                    "collaborates_with": [
+                        "Executive",
+                        "Analytics Specialist"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Financial reports",
+                        "Forecast models"
+                    ]
+                },
+                {
+                    "role": "HR Specialist",
+                    "department": "HR",
+                    "goal": "Manage employee lifecycle.",
+                    "key_tasks": [
+                        "Recruit talent",
+                        "Handle onboarding",
+                        "Manage benefits"
+                    ],
+                    "skills": [
+                        "Recruitment",
+                        "Employee relations",
+                        "Compliance"
+                    ],
+                    "metrics": [
+                        "Employee retention",
+                        "Time-to-hire"
+                    ],
+                    "tools": [
+                        "Workday",
+                        "BambooHR"
+                    ],
+                    "collaborates_with": [
+                        "Talent Acquisition",
+                        "Executive"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Job postings",
+                        "Onboarding materials"
+                    ]
+                },
+                {
+                    "role": "Executive",
+                    "department": "Executive",
+                    "goal": "Provide strategic leadership.",
+                    "key_tasks": [
+                        "Define vision",
+                        "Make key decisions",
+                        "Oversee company performance"
+                    ],
+                    "skills": [
+                        "Leadership",
+                        "Strategy",
+                        "Finance"
+                    ],
+                    "metrics": [
+                        "Revenue growth",
+                        "Market share"
+                    ],
+                    "tools": [
+                        "Board reports",
+                        "Financial dashboards"
+                    ],
+                    "collaborates_with": [
+                        "All departments"
+                    ],
+                    "level": "C-level",
+                    "deliverables": [
+                        "Strategic plans",
+                        "Annual reports"
+                    ]
+                },
+                {
+                    "project": {
+                        "name": "Serverless Observability Platform",
+                        "description": "A scalable platform for monitoring serverless workloads.",
+                        "tech_stack": [
+                            "C#",
+                            ".NET 8",
+                            "React",
+                            "Supabase",
+                            "Vercel"
+                        ],
+                        "deployment_targets": [
+                            "Vercel",
+                            "Supabase",
+                            "Docker",
+                            "Kubernetes"
+                        ],
+                        "ci_cd": [
+                            "GitHub Actions",
+                            "Azure DevOps"
+                        ],
+                        "security": [
+                            "OAuth2",
+                            "JWT",
+                            "SOC2 compliance",
+                            "GDPR"
+                        ],
+                        "scaffolding": [
+                            "Visual Studio solution",
+                            "API project",
+                            "Frontend project",
+                            "Infrastructure project"
+                        ],
+                        "documentation": [
+                            "README.md",
+                            "API docs",
+                            "Architecture diagrams",
+                            "Onboarding guide"
+                        ]
+                    },
+                    "agents": [
+                        {
+                            "role": "Product Manager",
+                            "department": "Product",
+                            "goal": "Define product vision and roadmap.",
+                            "key_tasks": [
+                                "Gather customer requirements",
+                                "Prioritize features",
+                                "Align roadmap with business goals",
+                                "Coordinate cross-team execution"
+                            ],
+                            "skills": [
+                                "Agile",
+                                "Roadmapping",
+                                "Stakeholder management"
+                            ],
+                            "metrics": [
+                                "Feature adoption rate",
+                                "Roadmap delivery"
+                            ],
+                            "tools": [
+                                "Jira",
+                                "Confluence"
+                            ],
+                            "collaborates_with": [
+                                "Engineering",
+                                "UX Designer",
+                                "Executive"
+                            ],
+                            "level": "Senior",
+                            "deliverables": [
+                                "Product roadmap",
+                                "Feature specifications"
+                            ]
+                        },
+                        {
+                            "role": "Software Engineer",
+                            "department": "Engineering",
+                            "goal": "Build and maintain core application features.",
+                            "key_tasks": [
+                                "Write clean, scalable code",
+                                "Implement APIs",
+                                "Conduct code reviews",
+                                "Collaborate with QA"
+                            ],
+                            "skills": [
+                                "C#",
+                                ".NET",
+                                "SQL",
+                                "Git"
+                            ],
+                            "metrics": [
+                                "Code coverage",
+                                "Feature delivery time"
+                            ],
+                            "tools": [
+                                "Visual Studio",
+                                "GitHub"
+                            ],
+                            "collaborates_with": [
+                                "Product Manager",
+                                "QA Engineer"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Backend services",
+                                "Unit tests"
+                            ]
+                        },
+                        {
+                            "role": "UX Designer",
+                            "department": "Design",
+                            "goal": "Create intuitive user experiences.",
+                            "key_tasks": [
+                                "Design wireframes",
+                                "Conduct usability testing",
+                                "Maintain design system"
+                            ],
+                            "skills": [
+                                "Figma",
+                                "User research",
+                                "Accessibility"
+                            ],
+                            "metrics": [
+                                "User satisfaction score",
+                                "Task completion rate"
+                            ],
+                            "tools": [
+                                "Figma",
+                                "Adobe XD"
+                            ],
+                            "collaborates_with": [
+                                "Frontend Engineer",
+                                "Product Manager"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Wireframes",
+                                "Prototypes"
+                            ]
+                        },
+                        {
+                            "role": "QA Engineer",
+                            "department": "Quality Assurance",
+                            "goal": "Ensure product reliability and performance.",
+                            "key_tasks": [
+                                "Develop automated tests",
+                                "Perform regression testing",
+                                "Track bugs"
+                            ],
+                            "skills": [
+                                "Selenium",
+                                "Test automation",
+                                "Attention to detail"
+                            ],
+                            "metrics": [
+                                "Bug resolution time",
+                                "Test coverage"
+                            ],
+                            "tools": [
+                                "Selenium",
+                                "Postman"
+                            ],
+                            "collaborates_with": [
+                                "Software Engineer",
+                                "DevOps Engineer"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Test plans",
+                                "Bug reports"
+                            ]
+                        },
+                        {
+                            "role": "DevOps Engineer",
+                            "department": "DevOps",
+                            "goal": "Automate deployments and maintain CI/CD pipelines.",
+                            "key_tasks": [
+                                "Manage pipelines",
+                                "Automate infrastructure",
+                                "Monitor system health"
+                            ],
+                            "skills": [
+                                "CI/CD",
+                                "Docker",
+                                "Kubernetes"
+                            ],
+                            "metrics": [
+                                "Deployment frequency",
+                                "System uptime"
+                            ],
+                            "tools": [
+                                "GitHub Actions",
+                                "Azure DevOps"
+                            ],
+                            "collaborates_with": [
+                                "Software Engineer",
+                                "SRE"
+                            ],
+                            "level": "Senior",
+                            "deliverables": [
+                                "CI/CD pipelines",
+                                "Infrastructure scripts"
+                            ]
+                        },
+                        {
+                            "role": "Site Reliability Engineer",
+                            "department": "SRE",
+                            "goal": "Maintain system reliability and scalability.",
+                            "key_tasks": [
+                                "Monitor performance",
+                                "Respond to incidents",
+                                "Improve resilience"
+                            ],
+                            "skills": [
+                                "Monitoring",
+                                "Incident response",
+                                "Cloud infrastructure"
+                            ],
+                            "metrics": [
+                                "MTTR",
+                                "System uptime"
+                            ],
+                            "tools": [
+                                "Prometheus",
+                                "Grafana"
+                            ],
+                            "collaborates_with": [
+                                "DevOps Engineer",
+                                "Security Analyst"
+                            ],
+                            "level": "Senior",
+                            "deliverables": [
+                                "Incident reports",
+                                "Reliability improvements"
+                            ]
+                        },
+                        {
+                            "role": "Security Analyst",
+                            "department": "Security",
+                            "goal": "Protect systems and data from threats.",
+                            "key_tasks": [
+                                "Conduct vulnerability assessments",
+                                "Implement patches",
+                                "Monitor activity"
+                            ],
+                            "skills": [
+                                "Penetration testing",
+                                "Encryption",
+                                "Compliance"
+                            ],
+                            "metrics": [
+                                "Number of vulnerabilities closed",
+                                "Audit pass rate"
+                            ],
+                            "tools": [
+                                "Nmap",
+                                "OWASP ZAP"
+                            ],
+                            "collaborates_with": [
+                                "SRE",
+                                "Compliance Officer"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Security reports",
+                                "Patch documentation"
+                            ]
+                        },
+                        {
+                            "role": "Data Engineer",
+                            "department": "Data Engineering",
+                            "goal": "Build and maintain data pipelines.",
+                            "key_tasks": [
+                                "Design ETL processes",
+                                "Optimize queries",
+                                "Ensure data quality"
+                            ],
+                            "skills": [
+                                "SQL",
+                                "Python",
+                                "ETL tools"
+                            ],
+                            "metrics": [
+                                "Pipeline uptime",
+                                "Data accuracy"
+                            ],
+                            "tools": [
+                                "Airflow",
+                                "Supabase"
+                            ],
+                            "collaborates_with": [
+                                "Analytics Team",
+                                "Software Engineer"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Data pipelines",
+                                "ETL scripts"
+                            ]
+                        },
+                        {
+                            "role": "Analytics Specialist",
+                            "department": "Analytics",
+                            "goal": "Provide insights from data.",
+                            "key_tasks": [
+                                "Build dashboards",
+                                "Run analyses",
+                                "Support decision-making"
+                            ],
+                            "skills": [
+                                "Data visualization",
+                                "Statistics",
+                                "SQL"
+                            ],
+                            "metrics": [
+                                "Report accuracy",
+                                "Insight adoption"
+                            ],
+                            "tools": [
+                                "Tableau",
+                                "Power BI"
+                            ],
+                            "collaborates_with": [
+                                "Product Manager",
+                                "Finance Analyst"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Dashboards",
+                                "Analytical reports"
+                            ]
+                        },
+                        {
+                            "role": "Customer Success Manager",
+                            "department": "Customer Success",
+                            "goal": "Drive customer adoption and satisfaction.",
+                            "key_tasks": [
+                                "Onboard clients",
+                                "Provide training",
+                                "Track health metrics"
+                            ],
+                            "skills": [
+                                "Communication",
+                                "Training",
+                                "CRM"
+                            ],
+                            "metrics": [
+                                "Customer retention",
+                                "NPS score"
+                            ],
+                            "tools": [
+                                "Salesforce",
+                                "HubSpot"
+                            ],
+                            "collaborates_with": [
+                                "Support Team",
+                                "Product Manager"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Onboarding guides",
+                                "Customer health reports"
+                            ]
+                        },
+                        {
+                            "role": "Support Specialist",
+                            "department": "Support",
+                            "goal": "Resolve customer issues quickly.",
+                            "key_tasks": [
+                                "Answer tickets",
+                                "Escalate bugs",
+                                "Provide solutions"
+                            ],
+                            "skills": [
+                                "Troubleshooting",
+                                "Communication",
+                                "Empathy"
+                            ],
+                            "metrics": [
+                                "Ticket resolution time",
+                                "Customer satisfaction"
+                            ],
+                            "tools": [
+                                "Zendesk",
+                                "Freshdesk"
+                            ],
+                            "collaborates_with": [
+                                "Customer Success Manager",
+                                "QA Engineer"
+                            ],
+                            "level": "Entry-level",
+                            "deliverables": [
+                                "Support tickets",
+                                "Knowledge base articles"
+                            ]
+                        },
+                        {
+                            "role": "Finance Analyst",
+                            "department": "Finance",
+                            "goal": "Manage budgets and financial planning.",
+                            "key_tasks": [
+                                "Prepare reports",
+                                "Forecast revenue",
+                                "Monitor KPIs"
+                            ],
+                            "skills": [
+                                "Accounting",
+                                "Excel",
+                                "Forecasting"
+                            ],
+                            "metrics": [
+                                "Budget variance",
+                                "Revenue growth"
+                            ],
+                            "tools": [
+                                "Excel",
+                                "QuickBooks"
+                            ],
+                            "collaborates_with": [
+                                "Executive",
+                                "Analytics Specialist"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Financial reports",
+                                "Forecast models"
+                            ]
+                        },
+                        {
+                            "role": "HR Specialist",
+                            "department": "HR",
+                            "goal": "Manage employee lifecycle.",
+                            "key_tasks": [
+                                "Recruit talent",
+                                "Handle onboarding",
+                                "Manage benefits"
+                            ],
+                            "skills": [
+                                "Recruitment",
+                                "Employee relations",
+                                "Compliance"
+                            ],
+                            "metrics": [
+                                "Employee retention",
+                                "Time-to-hire"
+                            ],
+                            "tools": [
+                                "Workday",
+                                "BambooHR"
+                            ],
+                            "collaborates_with": [
+                                "Talent Acquisition",
+                                "Executive"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Job postings",
+                                "Onboarding materials"
+                            ]
+                        },
+                        {
+                            "role": "Talent Acquisition Specialist",
+                            "department": "Talent",
+                            "goal": "Source and hire top talent.",
+                            "key_tasks": [
+                                "Post job ads",
+                                "Screen candidates",
+                                "Coordinate interviews"
+                            ],
+                            "skills": [
+                                "Recruitment",
+                                "Networking",
+                                "Interviewing"
+                            ],
+                            "metrics": [
+                                "Time-to-hire",
+                                "Offer acceptance rate"
+                            ],
+                            "tools": [
+                                "LinkedIn Recruiter",
+                                "Greenhouse"
+                            ],
+                            "collaborates_with": [
+                                "HR Specialist",
+                                "Hiring Managers"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Candidate pipelines",
+                                "Interview schedules"
+                            ]
+                        },
+                        {
+                            "role": "Compliance Officer",
+                            "department": "Compliance",
+                            "goal": "Ensure regulatory compliance.",
+                            "key_tasks": [
+                                "Monitor policies",
+                                "Conduct audits",
+                                "Respond to inquiries"
+                            ],
+                            "skills": [
+                                "Regulatory compliance",
+                                "Audit",
+                                "Documentation"
+                            ],
+                            "metrics": [
+                                "Compliance incidents",
+                                "Audit pass rate"
+                            ],
+                            "tools": [
+                                "Compliance software",
+                                "Document management"
+                            ],
+                            "collaborates_with": [
+                                "All departments"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Compliance reports",
+                                "Audit findings"
+                            ]
+                        },
+                        {
+                            "role": "Legal Counsel",
+                            "department": "Legal",
+                            "goal": "Provide legal guidance and support.",
+                            "key_tasks": [
+                                "Conduct legal research",
+                                "Draft contracts",
+                                "Provide legal advice"
+                            ],
+                            "skills": [
+                                "Legal research",
+                                "Contract drafting",
+                                "Legal analysis"
+                            ],
+                            "metrics": [
+                                "Legal incidents",
+                                "Contract approval time"
+                            ],
+                            "tools": [
+                                "Legal research tools",
+                                "Contract management"
+                            ],
+                            "collaborates_with": [
+                                "All departments"
+                            ],
+                            "level": "Senior",
+                            "deliverables": [
+                                "Legal documents",
+                                "Legal advice"
+                            ]
+                        },
+                        {
+                            "role": "Partnerships Manager",
+                            "department": "Partnerships",
+                            "goal": "Build and maintain relationships with partners.",
+                            "key_tasks": [
+                                "Identify opportunities",
+                                "Negotiate contracts",
+                                "Manage relationships"
+                            ],
+                            "skills": [
+                                "Partner management",
+                                "Negotiation",
+                                "Relationship building"
+                            ],
+                            "metrics": [
+                                "Partner retention",
+                                "Revenue from partnerships"
+                            ],
+                            "tools": [
+                                "Partner management software",
+                                "CRM"
+                            ],
+                            "collaborates_with": [
+                                "Sales",
+                                "Product Manager"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Partner contracts",
+                                "Relationship reports"
+                            ]
+                        },
+                        {
+                            "role": "Solutions Engineer",
+                            "department": "Solutions Engineering",
+                            "goal": "Provide technical expertise for solutions.",
+                            "key_tasks": [
+                                "Provide technical support",
+                                "Conduct technical assessments",
+                                "Provide training"
+                            ],
+                            "skills": [
+                                "Technical expertise",
+                                "Assessment",
+                                "Training"
+                            ],
+                            "metrics": [
+                                "Technical support incidents",
+                                "Training completion rate"
+                            ],
+                            "tools": [
+                                "Technical support tools",
+                                "Training materials"
+                            ],
+                            "collaborates_with": [
+                                "Sales",
+                                "Product Manager"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Technical support",
+                                "Training materials"
+                            ]
+                        },
+                        {
+                            "role": "Solutions Architect",
+                            "department": "Solutions Architecture",
+                            "goal": "Design and implement solutions.",
+                            "key_tasks": [
+                                "Design solutions",
+                                "Implement solutions",
+                                "Provide training"
+                            ],
+                            "skills": [
+                                "Solutions design",
+                                "Implementation",
+                                "Training"
+                            ],
+                            "metrics": [
+                                "Solution delivery time",
+                                "Training completion rate"
+                            ],
+                            "tools": [
+                                "Solutions design tools",
+                                "Implementation tools"
+                            ],
+                            "collaborates_with": [
+                                "Sales",
+                                "Product Manager"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Solutions design",
+                                "Implementation plans"
+                            ]
+                        },
+                        {
+                            "role": "Professional Services Engineer",
+                            "department": "Professional Services",
+                            "goal": "Provide technical expertise for professional services.",
+                            "key_tasks": [
+                                "Provide technical support",
+                                "Conduct technical assessments",
+                                "Provide training"
+                            ],
+                            "skills": [
+                                "Technical expertise",
+                                "Assessment",
+                                "Training"
+                            ],
+                            "metrics": [
+                                "Technical support incidents",
+                                "Training completion rate"
+                            ],
+                            "tools": [
+                                "Technical support tools",
+                                "Training materials"
+                            ],
+                            "collaborates_with": [
+                                "Sales",
+                                "Product Manager"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Technical support",
+                                "Training materials"
+                            ]
+                        },
+                        {
+                            "role": "Training Specialist",
+                            "department": "Training",
+                            "goal": "Provide training and support.",
+                            "key_tasks": [
+                                "Provide training",
+                                "Conduct assessments",
+                                "Provide support"
+                            ],
+                            "skills": [
+                                "Training",
+                                "Assessment",
+                                "Support"
+                            ],
+                            "metrics": [
+                                "Training completion rate",
+                                "Support incidents"
+                            ],
+                            "tools": [
+                                "Training tools",
+                                "Support tools"
+                            ],
+                            "collaborates_with": [
+                                "All departments"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Training materials",
+                                "Support tickets"
+                            ]
+                        },
+                        {
+                            "role": "Documentation Specialist",
+                            "department": "Documentation",
+                            "goal": "Provide documentation and support.",
+                            "key_tasks": [
+                                "Provide documentation",
+                                "Conduct assessments",
+                                "Provide support"
+                            ],
+                            "skills": [
+                                "Documentation",
+                                "Assessment",
+                                "Support"
+                            ],
+                            "metrics": [
+                                "Documentation completion rate",
+                                "Support incidents"
+                            ],
+                            "tools": [
+                                "Documentation tools",
+                                "Support tools"
+                            ],
+                            "collaborates_with": [
+                                "All departments"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Documentation materials",
+                                "Support tickets"
+                            ]
+                        },
+                        {
+                            "role": "Community Manager",
+                            "department": "Community",
+                            "goal": "Build and maintain relationships with the community.",
+                            "key_tasks": [
+                                "Build relationships",
+                                "Conduct assessments",
+                                "Provide support"
+                            ],
+                            "skills": [
+                                "Community building",
+                                "Assessment",
+                                "Support"
+                            ],
+                            "metrics": [
+                                "Community engagement",
+                                "Support incidents"
+                            ],
+                            "tools": [
+                                "Community tools",
+                                "Support tools"
+                            ],
+                            "collaborates_with": [
+                                "All departments"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Community materials",
+                                "Support tickets"
+                            ]
+                        },
+                        {
+                            "role": "Growth Manager",
+                            "department": "Growth",
+                            "goal": "Drive growth and adoption.",
+                            "key_tasks": [
+                                "Drive growth",
+                                "Conduct assessments",
+                                "Provide support"
+                            ],
+                            "skills": [
+                                "Growth",
+                                "Assessment",
+                                "Support"
+                            ],
+                            "metrics": [
+                                "Growth rate",
+                                "Support incidents"
+                            ],
+                            "tools": [
+                                "Growth tools",
+                                "Support tools"
+                            ],
+                            "collaborates_with": [
+                                "All departments"
+                            ],
+                            "level": "Mid-level",
+                            "deliverables": [
+                                "Growth materials",
+                                "Support tickets"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "role": "Compliance Officer",
+                    "department": "Compliance",
+                    "goal": "Ensure regulatory compliance.",
+                    "key_tasks": [
+                        "Monitor policies",
+                        "Conduct audits",
+                        "Train staff on compliance"
+                    ],
+                    "skills": [
+                        "Regulatory knowledge",
+                        "Risk management",
+                        "Documentation"
+                    ],
+                    "metrics": [
+                        "Audit pass rate",
+                        "Compliance incidents"
+                    ],
+                    "tools": [
+                        "Compliance management software",
+                        "Excel"
+                    ],
+                    "collaborates_with": [
+                        "Security Analyst",
+                        "Legal Counsel"
+                    ],
+                    "level": "Senior",
+                    "deliverables": [
+                        "Compliance reports",
+                        "Audit documentation"
+                    ]
+                },
+                {
+                    "role": "Legal Counsel",
+                    "department": "Legal",
+                    "goal": "Provide legal guidance and protect company interests.",
+                    "key_tasks": [
+                        "Draft contracts",
+                        "Review policies",
+                        "Handle disputes"
+                    ],
+                    "skills": [
+                        "Contract law",
+                        "Corporate law",
+                        "Negotiation"
+                    ],
+                    "metrics": [
+                        "Contract turnaround time",
+                        "Legal risk exposure"
+                    ],
+                    "tools": [
+                        "DocuSign",
+                        "Legal research databases"
+                    ],
+                    "collaborates_with": [
+                        "Compliance Officer",
+                        "Executive"
+                    ],
+                    "level": "Senior",
+                    "deliverables": [
+                        "Contracts",
+                        "Legal opinions"
+                    ]
+                },
+                {
+                    "role": "Marketing Manager",
+                    "department": "Marketing",
+                    "goal": "Promote product and drive brand awareness.",
+                    "key_tasks": [
+                        "Develop campaigns",
+                        "Manage social media",
+                        "Track KPIs"
+                    ],
+                    "skills": [
+                        "Digital marketing",
+                        "SEO",
+                        "Content strategy"
+                    ],
+                    "metrics": [
+                        "Lead generation",
+                        "Campaign ROI"
+                    ],
+                    "tools": [
+                        "Google Analytics",
+                        "HubSpot"
+                    ],
+                    "collaborates_with": [
+                        "Sales Team",
+                        "Community Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Marketing campaigns",
+                        "Content calendar"
+                    ]
+                },
+                {
+                    "role": "Sales Executive",
+                    "department": "Sales",
+                    "goal": "Drive revenue through customer acquisition.",
+                    "key_tasks": [
+                        "Prospect clients",
+                        "Close deals",
+                        "Maintain relationships"
+                    ],
+                    "skills": [
+                        "Negotiation",
+                        "CRM",
+                        "Presentation"
+                    ],
+                    "metrics": [
+                        "Sales quota attainment",
+                        "Customer acquisition cost"
+                    ],
+                    "tools": [
+                        "Salesforce",
+                        "LinkedIn Sales Navigator"
+                    ],
+                    "collaborates_with": [
+                        "Marketing Manager",
+                        "Customer Success Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Sales contracts",
+                        "Pipeline reports"
+                    ]
+                },
+                {
+                    "role": "Partnerships Manager",
+                    "department": "Partnerships",
+                    "goal": "Build strategic alliances.",
+                    "key_tasks": [
+                        "Identify partners",
+                        "Negotiate agreements",
+                        "Manage relationships"
+                    ],
+                    "skills": [
+                        "Networking",
+                        "Negotiation",
+                        "Strategic thinking"
+                    ],
+                    "metrics": [
+                        "Number of partnerships",
+                        "Revenue from partners"
+                    ],
+                    "tools": [
+                        "CRM",
+                        "Contract management software"
+                    ],
+                    "collaborates_with": [
+                        "Executive",
+                        "Sales Executive"
+                    ],
+                    "level": "Senior",
+                    "deliverables": [
+                        "Partnership agreements",
+                        "Joint initiatives"
+                    ]
+                },
+                {
+                    "role": "Solutions Engineer",
+                    "department": "Solutions Engineering",
+                    "goal": "Support sales with technical expertise.",
+                    "key_tasks": [
+                        "Demo products",
+                        "Customize solutions",
+                        "Answer technical queries"
+                    ],
+                    "skills": [
+                        "Technical knowledge",
+                        "Presentation",
+                        "Problem-solving"
+                    ],
+                    "metrics": [
+                        "Demo success rate",
+                        "Sales support effectiveness"
+                    ],
+                    "tools": [
+                        "Visual Studio",
+                        "Supabase"
+                    ],
+                    "collaborates_with": [
+                        "Sales Executive",
+                        "Software Engineer"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Technical demos",
+                        "Solution proposals"
+                    ]
+                },
+                {
+                    "role": "Solutions Architect",
+                    "department": "Solutions Architecture",
+                    "goal": "Design scalable customer solutions.",
+                    "key_tasks": [
+                        "Create architectures",
+                        "Ensure scalability",
+                        "Support implementations"
+                    ],
+                    "skills": [
+                        "System design",
+                        "Cloud architecture",
+                        "Integration"
+                    ],
+                    "metrics": [
+                        "Solution performance",
+                        "Implementation success"
+                    ],
+                    "tools": [
+                        "AWS",
+                        "Azure",
+                        "Kubernetes"
+                    ],
+                    "collaborates_with": [
+                        "Solutions Engineer",
+                        "Professional Services"
+                    ],
+                    "level": "Senior",
+                    "deliverables": [
+                        "Architecture diagrams",
+                        "Implementation guides"
+                    ]
+                },
+                {
+                    "role": "Professional Services Consultant",
+                    "department": "Professional Services",
+                    "goal": "Deliver tailored solutions to clients.",
+                    "key_tasks": [
+                        "Implement solutions",
+                        "Train users",
+                        "Provide ongoing support"
+                    ],
+                    "skills": [
+                        "Consulting",
+                        "Training",
+                        "Technical expertise"
+                    ],
+                    "metrics": [
+                        "Client satisfaction",
+                        "Project delivery time"
+                    ],
+                    "tools": [
+                        "Project management software",
+                        "Supabase"
+                    ],
+                    "collaborates_with": [
+                        "Solutions Architect",
+                        "Customer Success Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Implementation plans",
+                        "Training materials"
+                    ]
+                },
+                {
+                    "role": "Training Specialist",
+                    "department": "Training",
+                    "goal": "Educate employees and customers.",
+                    "key_tasks": [
+                        "Develop training programs",
+                        "Conduct workshops",
+                        "Evaluate effectiveness"
+                    ],
+                    "skills": [
+                        "Instructional design",
+                        "Communication",
+                        "Technical knowledge"
+                    ],
+                    "metrics": [
+                        "Training completion rate",
+                        "Knowledge retention"
+                    ],
+                    "tools": [
+                        "LMS",
+                        "PowerPoint"
+                    ],
+                    "collaborates_with": [
+                        "HR Specialist",
+                        "Customer Success Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Training modules",
+                        "Workshop materials"
+                    ]
+                },
+                {
+                    "role": "Documentation Specialist",
+                    "department": "Documentation",
+                    "goal": "Maintain clear and accurate documentation.",
+                    "key_tasks": [
+                        "Write manuals",
+                        "Update API docs",
+                        "Ensure clarity"
+                    ],
+                    "skills": [
+                        "Technical writing",
+                        "Attention to detail",
+                        "Editing"
+                    ],
+                    "metrics": [
+                        "Documentation accuracy",
+                        "Update frequency"
+                    ],
+                    "tools": [
+                        "Markdown",
+                        "Confluence"
+                    ],
+                    "collaborates_with": [
+                        "Software Engineer",
+                        "QA Engineer"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "User manuals",
+                        "API documentation"
+                    ]
+                },
+                {
+                    "role": "Community Manager",
+                    "department": "Community",
+                    "goal": "Engage and grow the user community.",
+                    "key_tasks": [
+                        "Moderate forums",
+                        "Organize events",
+                        "Gather feedback"
+                    ],
+                    "skills": [
+                        "Communication",
+                        "Event planning",
+                        "Social media"
+                    ],
+                    "metrics": [
+                        "Community growth",
+                        "Engagement rate"
+                    ],
+                    "tools": [
+                        "Discord",
+                        "Slack"
+                    ],
+                    "collaborates_with": [
+                        "Marketing Manager",
+                        "Support Specialist"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Community events",
+                        "Feedback reports"
+                    ]
+                },
+                {
+                    "role": "Growth Hacker",
+                    "department": "Growth",
+                    "goal": "Accelerate product adoption.",
+                    "key_tasks": [
+                        "Run experiments",
+                        "Analyze funnels",
+                        "Optimize conversions"
+                    ],
+                    "skills": [
+                        "Analytics",
+                        "Creativity",
+                        "Marketing"
+                    ],
+                    "metrics": [
+                        "Conversion rate",
+                        "User growth"
+                    ],
+                    "tools": [
+                        "Google Analytics",
+                        "Mixpanel"
+                    ],
+                    "collaborates_with": [
+                        "Marketing Manager",
+                        "Product Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Growth experiments",
+                        "Optimization reports"
+                    ]
+                },
+                {
+                    "role": "Strategy Analyst",
+                    "department": "Strategy",
+                    "goal": "Support long-term planning.",
+                    "key_tasks": [
+                        "Conduct market research",
+                        "Analyze competitors",
+                        "Support executives"
+                    ],
+                    "skills": [
+                        "Research",
+                        "Analysis",
+                        "Presentation"
+                    ],
+                    "metrics": [
+                        "Strategic initiative success",
+                        "Market share growth"
+                    ],
+                    "tools": [
+                        "Excel",
+                        "Power BI"
+                    ],
+                    "collaborates_with": [
+                        "Executive",
+                        "Product Manager"
+                    ],
+                    "level": "Mid-level",
+                    "deliverables": [
+                        "Strategy reports",
+                        "Market analyses"
+                    ]
+                },
+                {
+                    "role": "Executive",
+                    "department": "Executive",
+                    "goal": "Provide strategic leadership.",
+                    "key_tasks": [
+                        "Define vision",
+                        "Make key decisions",
+                        "Oversee company performance"
+                    ],
+                    "skills": [
+                        "Leadership",
+                        "Strategy",
+                        "Finance"
+                    ],
+                    "metrics": [
+                        "Revenue growth",
+                        "Market share"
+                    ],
+                    "tools": [
+                        "Board reports",
+                        "Financial dashboards"
+                    ],
+                    "collaborates_with": [
+                        "All departments"
+                    ],
+                    "level": "C-level",
+                    "deliverables": [
+                        "Strategic plans",
+                        "Annual reports"
+                    ]
+                }
+            ]
+        }
+    ]
+}
