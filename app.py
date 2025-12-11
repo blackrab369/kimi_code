@@ -30,6 +30,17 @@ import logging
 from collections import defaultdict, deque
 from typing import Dict, List
 
+# Configure logging for security events
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('security.log'),
+        logging.StreamHandler()
+    ]
+)
+
+security_logger = logging.getLogger('security')
 
 load_dotenv()
 
@@ -504,26 +515,26 @@ def revert_backup():
              shutil.copy2(backup_path, target_path)
 
 
- @app.route("/api/save", methods=["POST"])
+@app.route("/api/save", methods=["POST"])
 def save_file():
     data = request.get_json()
     project_name = data.get("project_name")
     file_path = data.get("file_path")
     content = data.get("content")
-    
+
     if not all([project_name, file_path, content]):
         return jsonify({"error": "Missing fields"}), 400
-        
+
     import builder
     success, msg = builder.apply_agent_edit(project_name, file_path, content)
-    
+
     # Log to Mentor
     import mentor as mentor_module
     if success:
         mentor_module.mentor.log_event(f"User manually saved file: {file_path}")
     else:
         mentor_module.mentor.log_event(f"User failed to save {file_path}: {msg}")
-    
+
     if success:
         return jsonify({"status": "success", "message": msg})
     else:
