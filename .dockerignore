@@ -1,0 +1,8 @@
+__pycache__
+venv
+.env
+.git
+.gitignore
+projects/
+local_dev.db
+*.pyc

@@ -27,79 +27,84 @@ client = OpenAI(
     base_url="https://api.moonshot.ai/v1"
 )
 
-# ------------------------------------------------------------------
-# 2. System prompt that forces *only* valid JSON array
-# ------------------------------------------------------------------
+def generate_agents(idea):
+    """
+    Generates a list of agents based on the provided idea using the Moonshot API.
+    """
+    # ------------------------------------------------------------------
+    # 2. Fire the request (non-streaming so we can parse JSON)
+    # ------------------------------------------------------------------
+    try:
+        response = client.chat.completions.create(
+            model="kimi-k2-0905-preview",
+            messages=[
+                {"role": "system", "content": prompt.SYSTEM_PROMPT},
+                {"role": "user", "content": idea}
+            ],
+            temperature=0.3,
+            max_tokens=8192,
+            top_p=1,
+            stream=False
+        )
+        content = response.choices[0].message.content
+        
+        # ------------------------------------------------------------------
+        # 3. Parse & validate JSON
+        # ------------------------------------------------------------------
+        agents_data = json.loads(content)
+        
 
+        # Depending on how the model returns it, it might be the full object or just the agents list
+        # The prompt asks for a JSON object with "project" and "agents" keys.
+        if "agents" in agents_data:
+             if len(agents_data["agents"]) > 30:
+                 pass
+        
+        # ------------------------------------------------------------------
+        # 4. Save to Project Folder
+        # ------------------------------------------------------------------
+        project_name = "Untitled_Project"
+        if "project" in agents_data and "name" in agents_data["project"]:
+             project_name = agents_data["project"]["name"].replace(" ", "_").replace("/", "-")
+        else:
+             # Fallback: sanitize idea
+             project_name = idea.split()[0:3] 
+             project_name = "_".join(project_name).replace(" ", "_").replace("/", "-")
 
-BASIC_SYSTEM_PROMPT = """
-You are an enterprise AI architect.
-The user will supply a short product/feature idea.
+        project_dir = os.path.join("projects", project_name)
+        os.makedirs(project_dir, exist_ok=True)
 
-Reply with **ONLY** a JSON array (no markdown, no commentary) of 30 objects.
-Each object must have:
-{
-  "role": "string",           # human-readable job title
-  "department": "string",     # department/team name
-  "goal": "string",           # 1-sentence mission for this agent
-  "key_tasks": ["string"]     # 2-4 core responsibilities
-}
+        output_file = os.path.join(project_dir, "agents.json")
+        with open(output_file, "w", encoding="utf-8") as fh:
+            json.dump(agents_data, fh, indent=2, ensure_ascii=False)
+            
+        # Add local path to result so app can use it
+        agents_data["local_path"] = output_file
+        agents_data["project_name"] = project_name
+        
+        return agents_data
 
-Cover every area of a real software company:
-Marketing, Sales, Product, UX, Engineering, QA, DevOps, SRE, Security,
-IT, Data-Engineering, Analytics, Research, Customer-Success, Support,
-Legal, Compliance, Finance, HR, Talent, People-Ops, Partnerships,
-Solutions-Engineering, Solutions-Architecture, Professional-Services,
-Training, Documentation, Community, Growth, Strategy, Executive.
-"""
-
-
-# ------------------------------------------------------------------
-# 3. Grab idea from CLI (or fall back to stdin)
-# ------------------------------------------------------------------
-if len(sys.argv) > 1:
-    idea = " ".join(sys.argv[1:])
-else:
-    idea = input("Idea: ").strip()
-
-if not idea:
-    sys.exit("No idea provided.")
-
-# ------------------------------------------------------------------
-# 4. Fire the request (non-streaming so we can parse JSON)
-# ------------------------------------------------------------------
-try:
-    response = client.chat.completions.create(
-        model="kimi-k2-0905-preview",
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": idea}
-        ],
-        temperature=0.3,
-        max_tokens=8192,
-        top_p=1,
-        stream=False
-    )
-    content = response.choices[0].message.content
-except Exception as exc:
-    sys.exit(f"Moonshot API failed: {exc}")
-
-# ------------------------------------------------------------------
-# 5. Parse & validate JSON
-# ------------------------------------------------------------------
-try:
-    agents = json.loads(content)
-    if not isinstance(agents, list) or len(agents) > 30:
-        raise ValueError("Malformed array")
-except Exception:
-    # Dump raw reply for debugging
-    sys.exit(f"Model returned invalid JSON.\nRaw reply:\n{content}")
+    except Exception as exc:
+        print(f"Error during generation: {exc}")
+        raise exc
 
 # ------------------------------------------------------------------
-# 6. Save tidy result
+# 4. CLI Entry point
 # ------------------------------------------------------------------
-output_file = "agents.json"
-with open(output_file, "w", encoding="utf-8") as fh:
-    json.dump({"idea": idea, "agents": agents}, fh, indent=2, ensure_ascii=False)
+if __name__ == "__main__":
+    # Grab idea from CLI
+    if len(sys.argv) > 1:
+        idea = " ".join(sys.argv[1:])
+    else:
+        idea = input("Idea: ").strip()
 
-print(f"✅  {len(agents)} AI agent roles written to {output_file}")
+    if not idea:
+        sys.exit("No idea provided.")
+
+    try:
+        data = generate_agents(idea)
+        print(f"✅  Result saved to {data.get('local_path', 'unknown')}")
+
+    except Exception as e:
+        sys.exit(f"Failed: {e}")
+

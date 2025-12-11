@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Projects - Antigravity AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .project-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-3px);
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .p-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .p-desc {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .p-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .btn-open {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            padding: 8px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .btn-open:hover {
+            background: #2563eb;
+        }
+
+        .create-new {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        .create-new:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .plus {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container dashboard-container">
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>My Workspace</h1>
+            <div>
+                <a href="/" class="secondary-btn">Generator</a>
+                <a href="/logout" class="secondary-btn" style="margin-left: 10px;">Logout</a>
+            </div>
+        </header>
+
+        <div class="project-list">
+            <!-- New Project Card -->
+            <a href="/" class="project-card create-new" style="text-decoration: none;">
+                <span class="plus">+</span>
+                <span>Create New Project</span>
+            </a>
+
+            {% for p in projects %}
+            <div class="project-card">
+                <div class="p-title">{{ p.project_name }}</div>
+                <div class="p-desc">{{ p.idea_prompt }}</div>
+                <div class="p-meta">
+                    <span>{{ p.agents_data.get('agents', [])|length }} Agents</span>
+                    <span>Action: Resume</span>
+                </div>
+                <a href="/?project={{ p.project_name }}" class="btn-open">Open Workspace</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>

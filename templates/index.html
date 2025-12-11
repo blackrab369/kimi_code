@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity AI Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content header-actions">
+                <h1>Antigravity AI Generator</h1>
+                <button id="settingsBtn" class="icon-btn" title="GitHub Settings">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+                    </svg>
+                </button>
+            </div>
+            <p class="subtitle">Enter an idea to spawn a full enterprise team of AI agents.</p>
+        </header>
+
+        <section class="input-section">
+            <input type="text" id="ideaInput" placeholder="e.g. Serverless Observability Platform" autofocus>
+            <button id="generateBtn">
+                <span class="btn-text">Generate Team</span>
+                <div class="loader" id="loader"></div>
+            </button>
+        </section>
+
+        <section id="resultSection" class="hidden">
+            <div id="projectInfo" class="project-card">
+                <!-- Project details injected here -->
+            </div>
+            <div id="statusIndicators">
+                <div class="status-item success">
+                    <span>📁 Project Created Locally</span>
+                </div>
+                <div id="githubStatus" class="status-item hidden">
+                    <span>☁️ Synced to GitHub</span>
+                </div>
+            </div>
+
+            <h2>AI Agents Team <span id="agentCount"></span></h2>
+
+            <div class="actions-bar" style="text-align: right; margin-bottom: 20px;">
+                <button id="buildBtn" class="secondary-btn hidden">
+                    <span class="btn-text">Build Software (MVP)</span>
+                    <div class="loader"></div>
+                </button>
+            </div>
+
+            <div id="buildOutput" class="terminal hidden">
+                <div class="terminal-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                    <span class="title">Interactive Terminal</span>
+                </div>
+                <div id="xterm-container" style="height: 300px; background: #1e1e1e;"></div>
+                <div class="terminal-input-bar">
+                    <span class="prompt">$</span>
+                    <input type="text" id="terminalInput" placeholder="Type a command (e.g. dir, npm install)...">
+                </div>
+            </div>
+
+            <div id="agentsGrid" class="agents-grid">
+                <!-- Agents injected here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>GitHub Settings</h2>
+            <p>Enter your Personal Access Token (PAT) to enable auto-sync.</p>
+            <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
+            <button id="saveTokenBtn">Save Token</button>
+            <p id="tokenStatus"></p>
+
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #333;">
+
+            <h2>Search Settings</h2>
+            <p>Enter Serper.dev API Key for enhanced search (Optional).</p>
+            <input type="password" id="serperKey" placeholder="serper_api_key">
+            <button id="saveSearchKeyBtn" class="secondary-btn" style="margin-bottom: 20px;">Save Search Key</button>
+
+            <h2>Audio Settings (ElevenLabs)</h2>
+            <p>Enable ultra-realistic AI narration.</p>
+            <input type="password" id="elevenKey" placeholder="xi-api-key (Optional if set on server)">
+
+            <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+                <label class="switch">
+                    <input type="checkbox" id="narratorToggle">
+                    <span class="slider round"></span>
+                </label>
+                <span>Enable Narrator Mode (Audio Guidance)</span>
+            </div>
+
+            <select id="voiceSelect"
+                style="width: 100%; padding: 10px; background: #222; color: #fff; border: 1px solid #444; border-radius: 6px; margin-bottom: 10px;">
+                <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Default)</option>
+                <option value="EXAVITQu4vr4xnSDxMaL">Bella</option>
+                <option value="ErXwobaYiN019PkySvjV">Antoni</option>
+                <option value="pNInz6obpgDQGcFmaJgB">Adam</option>
+            </select>
+
+            <button id="saveAudioBtn" class="secondary-btn" style="width: 100%;">Save Audio Settings</button>
+        </div>
+        <!-- Editor Modal -->
+        <div id="editorModal" class="modal hidden">
+            <div class="modal-content large-modal">
+                <span class="close-editor">&times;</span>
+                <div class="editor-header">
+                    <h2 id="editorFileName">filename.py</h2>
+                    <button id="saveFileBtn" class="primary-btn small-btn">💾 Save Changes</button>
+                </div>
+                <div id="monaco-container" style="height: 600px; border: 1px solid #333;"></div>
+            </div>
+        </div>
+
+        <!-- Monaco Editor Loader -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+        <script>
+            require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' } });
+        </script>
+        {% if initial_data %}
+        <script id="initial-data" type="application/json">
+        {{ initial_data | tojson | safe }}
+    </script>
+        {% endif %}
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+        <!-- Search Panel (Right Side) -->
+        <div id="searchPanel" class="search-panel hidden">
+            <div class="panel-header">
+                <h3>🌐 Live Research</h3>
+                <span class="close-panel" onclick="toggleSearchPanel()">×</span>
+            </div>
+            <div id="searchResults" class="panel-content">
+                <p class="placeholder">AI is researching...</p>
+                <!-- Search Items Go Here -->
+            </div>
+        </div>
+
+        <!-- Git Modal -->
+        <div id="gitModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close" onclick="document.getElementById('gitModal').classList.add('hidden')">&times;</span>
+                <h2>Git Control Center</h2>
+                <div style="padding:10px;">
+                    <button id="gitInitBtn" class="primary-btn">Initialize Repo</button>
+                    <!-- Expand with Commit/Status later -->
+                    <p>Status: <span id="gitStatus">Unknown</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device Preview Modal -->
+        <div id="previewModal" class="modal hidden">
+            <div class="modal-content unique-preview-modal"
+                style="width: 95%; height: 90%; max-width: none; background: #000;">
+                <span class="close"
+                    onclick="document.getElementById('previewModal').classList.add('hidden')">&times;</span>
+                <div class="preview-toolbar"
+                    style="padding: 10px; background: #222; display: flex; gap: 10px; align-items: center;">
+                    <button class="icon-btn" onclick="resizePreview('100%')">🖥️ Desktop</button>
+                    <button class="icon-btn" onclick="resizePreview('768px')">📱 Tablet</button>
+                    <button class="icon-btn" onclick="resizePreview('375px')">📱 Mobile</button>
+                    <span style="flex-grow:1; text-align:center; color:#888;">Live Sandbox</span>
+                    <button class="secondary-btn" onclick="document.getElementById('previewFrame').src += ''">🔄
+                        Refresh</button>
+                </div>
+                <div class="preview-container"
+                    style="height: calc(100% - 60px); display: flex; justify-content: center; background: #111; padding: 20px; overflow: auto;">
+                    <iframe id="previewFrame"
+                        style="width: 100%; height: 100%; border: 1px solid #333; transition: width 0.3s ease; background: #fff;"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Runner Modal -->
+        <div id="testModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close"
+                    onclick="document.getElementById('testModal').classList.add('hidden')">&times;</span>
+                <h2>🧪 Automated Test Runner</h2>
+                <div class="test-controls" style="margin-bottom: 10px;">
+                    <button id="runTestsBtn" class="primary-btn">Run Project Tests</button>
+                </div>
+                <pre id="testOutput"
+                    style="background: #111; color: #0f0; padding: 10px; height: 300px; overflow: auto; border-radius: 5px;">Ready to test...</pre>
+                <div id="debugActions" class="hidden"
+                    style="margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
+                    <p style="color: #ef4444;">❌ Tests Failed</p>
+                    <button id="autoFixBtn" class="secondary-btn" style="background: #ef4444; color: white;">✨ Auto-Fix
+                        with AI</button>
+                </div>
+            </div>
+        </div>
+
+</body>
+
+</html>

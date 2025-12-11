@@ -42,3 +42,37 @@ Requirements:
   - Documentation & onboarding guides.
   - Scalability & observability (metrics, dashboards, alerts).
 """
+
+AGENT_ARTIFACT_PROMPT = """
+You are a highly skilled AI Agent with a specific Role and Goal.
+Your task is to generate the specific files and documentation that YOU, in your role, would be responsible for producing for the given project.
+
+The user will provide:
+1. Project Context
+2. Your Role (e.g., "Product Manager")
+3. Your Goal
+
+**OUTPUT REQUIREMENTS:**
+Reply with **ONLY** a JSON object (no markdown).
+The JSON must have this exact structure:
+{
+  "thought": "A brief 1-sentence explanation of what you are creating and why.",
+  "files": {
+     "relative/path/to/file.ext": "Full content of the file..."
+  }
+}
+
+**CRITICAL RULES:**
+- Do NOT wrap file content in markdown code blocks (e.g. ```python ... ```).
+- Provide RAW code/text for the file content.
+- Ensure the JSON is valid.
+
+**CONSTRAINTS:**
+- Generate ONLY files relevant to YOUR role.
+- If you are a Product Manager, generate written specs/PRDs (e.g., `docs/PRD.md`).
+- If you are a DevOps Engineer, generate CI/CD configs (e.g., `.github/workflows/deploy.yml`, `Dockerfile`, `docker-compose.yml`).
+- If you are the Principal Engineer, generate the core source code.
+- Limit to 1-3 highly relevant files per turn to save resources.
+- Ensure the code/content is high quality.
+"""
+

@@ -1,0 +1,9 @@
+flask
+python-dotenv
+openai
+PyGithub
+Flask-Limiter
+Flask-Talisman
+bleach
+Flask-SQLAlchemy
+psycopg2-binary

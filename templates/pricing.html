@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pricing - Antigravity AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .price-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .price-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .price-card.popular {
+            background: linear-gradient(145deg, rgba(88, 101, 242, 0.1), rgba(0, 0, 0, 0));
+            border-color: var(--primary);
+            position: relative;
+        }
+
+        .price-card.popular::before {
+            content: "MOST POPULAR";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .features li {
+            margin-bottom: 0.8rem;
+            color: #ccc;
+        }
+
+        .features li::before {
+            content: "✓";
+            color: var(--primary);
+            margin-right: 8px;
+        }
+
+        .features li.dim {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .features li.dim::before {
+            content: "×";
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header style="text-align:center;">
+            <h1>Upgrade Your Workflow</h1>
+            <p class="subtitle">Choose the plan that fits your ambition.</p>
+        </header>
+
+        <div class="pricing-grid">
+            <!-- Free -->
+            <div class="price-card">
+                <h2>Starter</h2>
+                <div class="price">$0<span>/mo</span></div>
+                <p>Perfect for hobbyists.</p>
+                <ul class="features">
+                    <li>1 AI Project Build / mo</li>
+                    <li>Basic Chat Intelligence</li>
+                    <li class="dim">Advanced Voice Agents</li>
+                    <li class="dim">GitHub Sync</li>
+                    <li class="dim">Priority Support</li>
+                </ul>
+                <button class="secondary-btn" style="width:100%" disabled>Current Plan</button>
+            </div>
+
+            <!-- Pro -->
+            <div class="price-card popular">
+                <h2>Pro</h2>
+                <div class="price">$29<span>/mo</span></div>
+                <p>For serious developers.</p>
+                <ul class="features">
+                    <li>50 AI Project Builds / mo</li>
+                    <li>Full Voice Intelligence (50k chars)</li>
+                    <li>GitHub Two-Way Sync</li>
+                    <li>Live Mobile Preview</li>
+                    <li>Priority Support</li>
+                </ul>
+                <button class="primary-btn" style="width:100%" onclick="checkout(2)">Upgrade to Pro</button>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="price-card">
+                <h2>Enterprise</h2>
+                <div class="price">$199<span>/mo</span></div>
+                <p>For teams and agencies.</p>
+                <ul class="features">
+                    <li>Unlimited builds</li>
+                    <li>Unlimited Voice</li>
+                    <li>Custom Fine-tuned Models</li>
+                    <li>Self-Hosted Option</li>
+                    <li>Dedicated Mentor Agent</li>
+                </ul>
+                <button class="secondary-btn" style="width:100%" onclick="checkout(3)">Contact Sales</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function checkout(pkgId) {
+            if (pkgId === 3) {
+                alert("Please email sales@antigravity.ai for Enterprise setup.");
+                return;
+            }
+
+            // Simple mock checkout for now
+            if (confirm("Confirm subscription for Package #" + pkgId + "?")) {
+                const res = await fetch('/api/billing/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ package_id: pkgId })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert("Welcome to the team! Plan upgraded.");
+                    window.location.href = '/billing';
+                } else {
+                    alert("Error: " + data.message);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
