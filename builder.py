@@ -4,6 +4,9 @@ import sys
 from openai import OpenAI
 import prompt
 import search # New
+import ast  # Required for Python syntax validation
+import github_utils  # Used but never imported
+import mentor as mentor_module  # Used but never imported
 
 # Reuse the client from kimi_code or create a new one
 client = OpenAI(

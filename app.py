@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from kimi_code import generate_agents
 from dotenv import load_dotenv
 import github_utils
+import re
 import os
 import json
 import bleach
@@ -15,6 +16,15 @@ import time
 from models import db, Project, User, Package, Transaction
 import memory
 import mentor as mentor_module
+from flask import send_file  # Used in export_zip function but not imported
+import subprocess  # Used in git routes but not imported at the top
+import shlex
+from typing import List, Dict, Any
+from typing import Optional
+from enum import Enum
+from dataclasses import dataclass
+from typing import List, Set
+
 
 load_dotenv()
 
@@ -518,35 +528,108 @@ def save_file():
 
 @app.route("/api/terminal/run", methods=["POST"])
 def terminal_run():
-    data = request.get_json()
-    command = data.get("command")
-    project_name = data.get("project_name")
-    
-    if not command or not project_name:
-         return jsonify({"output": "Error: Missing command or project"}), 400
+    # Define allowed commands and their arguments
+    ALLOWED_COMMANDS = {
+        'npm': ['install', 'test', 'run', 'build', 'start'],
+        'python': ['-m', 'pip', 'install', '-m', 'http.server', '-m', 'pytest'],
+        'pip': ['install', 'list', 'show'],
+        'ls': ['-la', '-l', '-a'],
+        'cat': [],
+        'wc': ['-l', '-w', '-c'],
+        'mkdir': [],
+        'touch': [],
+        'rm': ['-rf', '-r', '-f'],
+        'cp': ['-r'],
+        'mv': [],
+        'git': ['status', 'add', 'commit', 'push', 'pull', 'clone', 'init']
+    }
 
-    # Security: whitelist basic commands or rely on sandbox (Docker is best, but for local v1...)
-    # We will run inside the project root
-    project_root = os.path.join("projects", project_name)
-    if not os.path.exists(project_root):
-        return jsonify({"output": f"Error: Project path not found: {project_root}"}), 404
+    def validate_command_parts(command_parts: List[str]) -> bool:
+        """Validate command and arguments against whitelist"""
+        if not command_parts:
+            return False
         
-    try:
-        import subprocess
-        # Using shell=True is risky but needed for 'dir', 'npm', etc. on Windows
-        # Capturing combined output
-        output = subprocess.check_output(
-            command, 
-            shell=True, 
-            cwd=project_root, 
-            stderr=subprocess.STDOUT,
-            timeout=30 # Timeout to prevent hangs
-        )
-        return jsonify({"output": output.decode("utf-8", errors="replace")})
-    except subprocess.CalledProcessError as e:
-        return jsonify({"output": e.output.decode("utf-8", errors="replace")})
-    except Exception as e:
-        return jsonify({"output": f"Execution Error: {str(e)}"})
+        base_command = command_parts[0]
+        
+        # Check if command is allowed
+        if base_command not in ALLOWED_COMMANDS:
+            return False
+        
+        # Check arguments if any are provided
+        if len(command_parts) > 1:
+            allowed_args = ALLOWED_COMMANDS[base_command]
+            for arg in command_parts[1:]:
+                # Skip file/directory names (they don't start with -)
+                if not arg.startswith('-'):
+                    continue
+                # Check if argument is allowed
+                if arg not in allowed_args:
+                    return False
+        
+        return True
+
+    def secure_terminal_run(command: str, project_name: str) -> Dict[str, Any]:
+        """
+        Securely execute terminal commands with injection prevention
+        """
+        # Input validation
+        if not command or not isinstance(command, str):
+            return {"output": "Error: Invalid command", "error": "Invalid input"}
+        
+        if not project_name or not isinstance(project_name, str):
+            return {"output": "Error: Invalid project name", "error": "Invalid input"}
+        
+        # Path validation
+        try:
+            project_root = get_secure_project_path(project_name)
+        except ValueError as e:
+            return {"output": f"Error: {str(e)}", "error": "Invalid project"}
+        
+        if not os.path.exists(project_root):
+            return {"output": f"Error: Project path not found: {project_root}", "error": "Project not found"}
+        
+        # Parse command safely using shlex
+        try:
+            command_parts = shlex.split(command.strip())
+        except ValueError as e:
+            return {"output": f"Error: Invalid command syntax: {str(e)}", "error": "Parse error"}
+        
+        # Validate against whitelist
+        if not validate_command_parts(command_parts):
+            return {"output": "Error: Command not allowed", "error": "Unauthorized command"}
+        
+        # Additional safety: Check for dangerous patterns
+        dangerous_patterns = ['&&', '||', ';', '|', '`', '$', '(', ')', '<', '>', '\n', '\r']
+        for part in command_parts:
+            for pattern in dangerous_patterns:
+                if pattern in part:
+                    return {"output": f"Error: Dangerous character detected: {pattern}", "error": "Security violation"}
+        
+        # Execute safely with shell=False
+        try:
+            result = subprocess.run(
+                command_parts,
+                shell=False,  # CRITICAL: Never use shell=True
+                cwd=project_root,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=False
+            )
+            
+            output = result.stdout if result.stdout else result.stderr
+            if not output:
+                output = f"Command completed with exit code: {result.returncode}"
+                
+            return {"output": output, "exit_code": result.returncode}
+            
+        except subprocess.TimeoutExpired:
+            return {"output": "Error: Command timed out after 30 seconds", "error": "Timeout"}
+        except FileNotFoundError:
+            return {"output": f"Error: Command not found: {command_parts[0]}", "error": "Command not found"}
+        except Exception as e:
+            return {"output": f"Execution Error: {str(e)}", "error": "Execution failed"}
+    
 
 @app.route("/api/voices", methods=["GET"])
 def get_voices():
@@ -638,9 +721,6 @@ def mentor_log():
 @app.route("/api/mentor/tip", methods=["GET"])
 def get_mentor_tip():
     project_name = request.args.get("project_name", "Unknown Project")
-    tip = mentor_module.mentor.generate_tip(project_name)
-    return jsonify({"tip": tip})
-
     tip = mentor_module.mentor.generate_tip(project_name)
     return jsonify({"tip": tip})
 
@@ -1061,3 +1141,123 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+
+class CommandSanitizer:
+    """Advanced command input sanitization"""
+    
+    # Dangerous shell metacharacters and patterns
+    DANGEROUS_CHARS = r'[;&|`$()<>\\n\\r]'
+    DANGEROUS_PATTERNS = [
+        r'&&', r'\|\|', r';', r'\|', r'`', r'\$\(',
+        r'\${', r'<', r'>', r'\n', r'\r', r'\\x',
+        r'eval\s*\(', r'exec\s*\(', r'system\s*\('
+    ]
+    
+    @staticmethod
+    def sanitize_input(user_input: str) -> Optional[str]:
+        """Comprehensive input sanitization"""
+        if not user_input or not isinstance(user_input, str):
+            return None
+            
+        # Remove null bytes
+        user_input = user_input.replace('\x00', '')
+        
+        # Check for dangerous characters
+        if re.search(CommandSanitizer.DANGEROUS_CHARS, user_input):
+            return None
+            
+        # Check for dangerous patterns
+        for pattern in CommandSanitizer.DANGEROUS_PATTERNS:
+            if re.search(pattern, user_input, re.IGNORECASE):
+                return None
+                
+        # Additional checks for encoded payloads
+        if '%' in user_input:
+            try:
+                # Check for URL-encoded dangerous characters
+                import urllib.parse
+                decoded = urllib.parse.unquote(user_input)
+                if re.search(CommandSanitizer.DANGEROUS_CHARS, decoded):
+                    return None
+            except:
+                return None
+                
+        return user_input.strip()
+
+    @staticmethod
+    def validate_filename(filename: str) -> Optional[str]:
+        """Secure filename validation"""
+        if not filename:
+            return None
+            
+        # Remove path components
+        from pathlib import Path
+        safe_name = Path(filename).name
+        
+        # Check for empty filename after path removal
+        if not safe_name or safe_name.startswith('.'):
+            return None
+            
+        # Validate extension
+        allowed_extensions = {'.txt', '.md', '.py', '.js', '.json', '.yml', '.yaml'}
+        ext = Path(safe_name).suffix.lower()
+        if ext not in allowed_extensions:
+            return None
+            
+        return safe_name
+
+class CommandCategory(Enum):
+    """Command categories for granular control"""
+    FILE_SYSTEM = "filesystem"
+    VERSION_CONTROL = "vcs"
+    PACKAGE_MANAGER = "package"
+    TESTING = "testing"
+    BUILD = "build"
+
+@dataclass
+class WhitelistedCommand:
+    """Represents a whitelisted command"""
+    command: str
+    category: CommandCategory
+    allowed_args: Set[str]
+    max_args: int = 10
+    requires_file: bool = False
+
+# Comprehensive whitelist
+WHITELISTED_COMMANDS = [
+    WhitelistedCommand("ls", CommandCategory.FILE_SYSTEM, {"-la", "-l", "-a", "-h"}),
+    WhitelistedCommand("cat", CommandCategory.FILE_SYSTEM, set(), requires_file=True),
+    WhitelistedCommand("wc", CommandCategory.FILE_SYSTEM, {"-l", "-w", "-c"}, requires_file=True),
+    WhitelistedCommand("npm", CommandCategory.PACKAGE_MANAGER, {"install", "test", "run", "build"}),
+    WhitelistedCommand("python", CommandCategory.BUILD, {"-m", "pip"}, max_args=5),
+    WhitelistedCommand("git", CommandCategory.VERSION_CONTROL, {"status", "add", "commit", "push", "pull"}),
+    WhitelistedCommand("pytest", CommandCategory.TESTING, {"-v", "-x", "--tb=short"}),
+]
+
+class CommandWhitelist:
+    """Manages whitelisted commands"""
+    
+    def __init__(self):
+        self.commands = {cmd.command: cmd for cmd in WHITELISTED_COMMANDS}
+    
+    def validate_command(self, command_parts: List[str]) -> bool:
+        """Validate command against whitelist"""
+        if not command_parts:
+            return False
+            
+        base_cmd = command_parts[0]
+        cmd_config = self.commands.get(base_cmd)
+        
+        if not cmd_config:
+            return False
+            
+        # Check argument count
+        if len(command_parts) - 1 > cmd_config.max_args:
+            return False
+            
+        # Validate arguments
+        for arg in command_parts[1:]:
+            if arg.startswith('-') and arg not in cmd_config.allowed_args:
+                return False
+                
+        return True
